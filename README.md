@@ -13,7 +13,8 @@ cap-activations.webp          drawing — Brand Activations
 cap-community.webp            drawing — Community Events
 cap-photo-video.webp          drawing — Photo & Video
 cap-popups.webp               drawing — Pop-Ups
-waxseal.webp                  wax seal behind the enquiries section
+sk-*.webp                     fifteen event sketches for the hero paper wall
+lockup.webp                   RC lockup, footer watermark
 robots.txt                    tells crawlers the site is open, points at the sitemap
 sitemap.xml                   lists the page so Google indexes it faster
 ```
