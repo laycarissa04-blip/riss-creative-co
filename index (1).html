@@ -44,12 +44,17 @@
     --max:1180px;
   }
   *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;overflow-x:hidden;}
+  html{scroll-behavior:smooth;}
+  /* iOS Safari ignores overflow-x on <html> alone; without this the page
+     is a few px wider than the screen, Safari shrink-to-fits, and every
+     centred element lands off-centre */
+  html,body{overflow-x:clip;max-width:100%;}
   body{
     margin:0;background:var(--paper);color:var(--ink);
     font-family:var(--body);font-weight:300;
     -webkit-font-smoothing:antialiased;
   }
+  img,svg,video,iframe{max-width:100%;}
   .wrap{max-width:var(--max);margin:0 auto;padding-left:var(--gut);padding-right:var(--gut);}
 
   .eyebrow{
@@ -205,7 +210,6 @@
   .tag-l{left:var(--gut);}
   .tag-r{right:var(--gut);text-align:right;}
   @media (max-width:820px){ .tag-r{display:none;} }
-to{transform:translateX(-50%);}}
   @media (prefers-reduced-motion:reduce){
   }
 
@@ -367,21 +371,32 @@ to{transform:translateX(-50%);}}
   }
 
   /* ---- contact ---- */
-  .contact{display:grid;
+  /* named areas, so nothing can leak a stray grid-column into a
+     breakpoint it was never meant for */
+  .contact{display:grid;align-items:start;
     grid-template-columns:minmax(0,.85fr) minmax(0,1fr) minmax(0,.6fr);
-    gap:clamp(28px,5vw,72px);align-items:start;}
-  .contact-lede{grid-column:1;}
-  .contact form{grid-column:2;}
-  .details{grid-column:3;}
+    grid-template-areas:"lede form details";
+    gap:clamp(28px,5vw,72px);}
+  .contact-lede{grid-area:lede;min-width:0;}
+  .contact form{grid-area:form;min-width:0;}
+  .details{grid-area:details;min-width:0;}
   @media (max-width:1000px){
-    .contact{grid-template-columns:minmax(0,1fr) minmax(0,.7fr);}
-    .contact-lede{grid-column:1/-1;}
-    .contact form{grid-column:1;}
-    .details{grid-column:2;}
+    .contact{
+      grid-template-columns:minmax(0,1fr) minmax(0,.7fr);
+      grid-template-areas:
+        "lede lede"
+        "form details";
+    }
   }
   @media (max-width:760px){
-    .contact{grid-template-columns:1fr;gap:clamp(30px,7vw,44px);}
-    .contact-lede,.contact form,.details{grid-column:1;}
+    .contact{
+      grid-template-columns:minmax(0,1fr);
+      grid-template-areas:
+        "lede"
+        "form"
+        "details";
+      gap:clamp(30px,7vw,44px);
+    }
   }
   .intro{font-size:15px;line-height:1.8;max-width:40ch;margin:24px 0 44px;color:#2a2a2a;}
   .field{margin-bottom:26px;}
@@ -447,7 +462,6 @@ to{transform:translateX(-50%);}}
     footer span:first-of-type,footer span:last-of-type{justify-self:center;text-align:center;}
     .footmark{grid-column:1;grid-row:1;width:78px;opacity:.13;}
   }
-  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;}
   footer span{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ash);font-weight:500;}
 
   a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
@@ -505,7 +519,8 @@ to{transform:translateX(-50%);}}
   .topnav a:hover,.topnav a.here{color:var(--ink);border-bottom-color:var(--ink);}
 
   .navtoggle{
-    display:none;position:absolute;left:var(--gut);top:50%;transform:translateY(-50%);
+    display:none;
+    grid-column:1;grid-row:1;justify-self:start;align-self:center;
     width:30px;height:22px;padding:0;border:0;background:transparent;cursor:pointer;
   }
   .navtoggle span{
@@ -534,12 +549,13 @@ to{transform:translateX(-50%);}}
     .topnav.open{max-height:260px;}
     .topnav a{padding:14px 0;border-bottom:1px solid var(--rule);}
     .topnav a:last-child{border-bottom:0;}
-    /* centre on the bar itself, not on whatever is left over beside the
-       toggle - a left margin only lands centred by coincidence */
+    /* the toggle and the share button sit in the two 1fr columns, which are
+       equal by definition, so the auto middle column is dead centre. no
+       absolute positioning, nothing to drift, nothing to clip. */
+    .topbar .wrap{grid-template-columns:1fr auto 1fr;}
     .topbar .mark{
-      position:absolute;left:50%;top:50%;
-      transform:translate(-50%,-50%);
-      margin-left:0;
+      grid-column:2;grid-row:1;
+      justify-self:center;align-self:center;
     }
   }
 
@@ -743,7 +759,7 @@ to{transform:translateX(-50%);}}
   .book-frame iframe{width:100%;min-height:640px;border:0;}
 
   @media (max-width:820px){
-    .phil,.contact{grid-template-columns:1fr;}
+    .phil{grid-template-columns:1fr;}
     .post{grid-template-columns:1fr;}
     .post-media{aspect-ratio:16/10;}
     .stamp{width:78px;height:78px;}
@@ -759,10 +775,20 @@ to{transform:translateX(-50%);}}
     .consult{max-width:100%;}
     .rail{display:none;}
     .hero-copy .ed-line{max-width:16ch;}
-  .standfirst{text-align:left;}
+    .standfirst{text-align:left;}
     .phil-body p:first-of-type{margin-top:20px;}
     .caps{grid-template-columns:1fr;}
-    @media (prefers-reduced-motion:reduce){
+  }
+
+  /* ---------- overflow safety ----------
+     grid and flex children default to min-width:auto, which refuses to
+     shrink below their content. one long word or a wide masthead is all it
+     takes to push the page past the screen, and once that happens Safari
+     zooms the whole document out and every centred thing lands crooked. */
+  .phil > *,.post > *,.caps > *,.paper-head > *,.contact > *{min-width:0;}
+  .details,.sig-lines,.sig-lines a,.place{overflow-wrap:anywhere;}
+
+  @media (prefers-reduced-motion:reduce){
     html{scroll-behavior:auto;}
     *{transition:none !important;}
   }
