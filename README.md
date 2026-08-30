@@ -1,60 +1,83 @@
 # risscreativeco.com
 
-Single-page site for Riss Creative Co. LLC — event production and creative direction, Los Angeles.
+Single-page site for Riss Creative Co. Everything — CSS, JavaScript, fonts
+fallbacks, illustrations and photographs — is contained in `index.html`.
+There is no build step and no dependencies to install.
 
-## What lives here
+## Files
 
-```
-index.html                    the site (all CSS and JS inline)
-og-image.png                  link-preview image used by the meta tags
-cap-creative-direction.webp   drawing — Creative Direction
-cap-galas.webp                drawing — Galas & Fundraisers
-cap-activations.webp          drawing — Brand Activations
-cap-community.webp            drawing — Community Events
-cap-photo-video.webp          drawing — Photo & Video
-cap-popups.webp               drawing — Pop-Ups
-sk-*.webp                     fifteen event sketches for the hero paper wall
-lockup.webp                   RC lockup, footer watermark
-robots.txt                    tells crawlers the site is open, points at the sitemap
-sitemap.xml                   lists the page so Google indexes it faster
-```
+| File | What it is | Safe to delete? |
+|---|---|---|
+| `index.html` | The entire site | No |
+| `og-image.png` | **You must add this** — see below | No |
+| `CNAME` | Tells GitHub Pages the custom domain is `risscreativeco.com` | Only if not using the custom domain |
+| `.nojekyll` | Stops GitHub from running Jekyll over the files | No |
+| `robots.txt` | Lets search engines crawl, points them at the sitemap | No |
+| `sitemap.xml` | Lists the one page, for search engines | No |
+| `404.html` | Shown for any bad URL | Yes, but nice to keep |
 
-The logo, favicon and portrait are base64-encoded inside `index.html`. The six drawings are separate files — **the page breaks without them.**
+## ⚠️ Before publishing: add `og-image.png`
 
-## Hosting: Vercel
+`index.html` points at `https://risscreativeco.com/og-image.png` in four
+places — the Open Graph tag, the Twitter card, and the Organization `image`
+and `logo` in the structured data. That file is **not** in this folder.
 
-This site is served by Vercel, not GitHub Pages. Deploy one of two ways.
+Drop your existing `og-image.png` into the repository root, next to
+`index.html`. Without it, links shared to Instagram, iMessage, LinkedIn and
+Slack will show no preview image, and Google will see a broken logo URL.
 
-### If Vercel is connected to your GitHub repo
+Recommended: 1200 × 630 px, under 1 MB. The dimensions are already declared
+in the HTML, so match them.
 
-Pushing to the repo redeploys automatically. Upload **every** file in this folder, not just `index.html`. Wait about a minute, then hard-refresh.
+## Publishing on GitHub Pages
 
-### If you drag a folder into vercel.com
+1. Create a repository and upload every file in this folder to the root
+   (not inside a subfolder).
+2. Repository → **Settings** → **Pages**.
+3. Under *Build and deployment*, set **Source** to `Deploy from a branch`,
+   branch `main`, folder `/ (root)`. Save.
+4. Wait a minute, then check the URL GitHub shows you.
 
-Drag the **whole folder**. Dragging `index.html` on its own gives you a live page with six broken images.
+### Pointing risscreativeco.com at it
 
-### Checking a deploy worked
+In Settings → Pages → *Custom domain*, enter `risscreativeco.com`.
+Then at your domain registrar, create:
 
-Open a file directly in the browser:
+- Four **A** records for the apex `@`, pointing to:
+  `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
+- One **CNAME** record for `www`, pointing to `USERNAME.github.io`
+  (your GitHub username, no repository name on the end)
 
-```
-https://risscreativeco.com/cap-galas.webp
-```
+DNS can take anywhere from a few minutes to a day. Once it resolves, tick
+**Enforce HTTPS** on the Pages settings screen.
 
-Drawing loads = deployed. 404 = that file never made it up.
+Verify the current IPs against GitHub's own docs before relying on them:
+https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site
 
-## Files you can ignore
+## Editing the site later
 
-`CNAME` and `.nojekyll` are GitHub Pages artefacts. Vercel doesn't read either one — your domain is configured in the Vercel dashboard under Settings → Domains. Harmless to leave, safe to delete.
+Everything lives in `index.html`. Useful landmarks, in order:
 
-Also delete `arch.webp`, `table.webp` and `cart.webp` if they're still in the repo. Nothing references them.
+- `<head>` — title, meta description, Open Graph/Twitter tags, favicon
+- `<script type="application/ld+json">` — structured data (Person, the
+  studio, the Carter Lay Charitable Fund, WebPage, WebSite). A comment above
+  it lists the profile URLs still to be filled in.
+- `<style>` — all CSS
+- `id="top"` — hero
+- `id="philosophy"` — Philosophy
+- `id="community"` — Community, the newspaper-style block
+- `id="caps"` — Capabilities
+- `id="contact"` — contact form
+- `<script>` blocks at the bottom — the wall collage, typing, scroll effects
 
-## Making changes later
+The contact form posts to Formspree
+(`https://formspree.io/f/xnpaoyyr`). Submissions go to whichever inbox that
+Formspree form is configured with — it is not tied to GitHub.
 
-Edit `index.html`, redeploy. Update `<lastmod>` in `sitemap.xml` after a meaningful content change.
+## A note on file size
 
-## After deploying
-
-1. Search `site:risscreativeco.com` to check you're indexed.
-2. Verify the domain in Google Search Console, submit `https://risscreativeco.com/sitemap.xml`.
-3. Run the homepage through `search.google.com/test/rich-results`.
+`index.html` is about 3.7 MB because every image is embedded directly in it
+as base64. This keeps the site to one file with nothing to break, but it
+means a visitor downloads all of it before the page finishes. If loading
+ever feels slow, the fix is to pull the images out into an `/images` folder
+and reference them by filename — that is a mechanical change, not a redesign.
