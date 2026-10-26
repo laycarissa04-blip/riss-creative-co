@@ -598,6 +598,7 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
   <div class="pmeta" id="pmeta"></div>
 </section>
 
+<script>setTimeout(function(){var l=document.getElementById('loader');if(document.body.classList.contains('loading')){document.body.classList.remove('loading');if(l)l.classList.add('off');}},3500);</script>
 <script src="js/matter.min.js"></script>
 <script>
 /* =========================================================
@@ -807,7 +808,7 @@ addEventListener('hashchange',route);
    Moving the cursor (or a finger) through them knocks them loose; once
    left alone they find each other again, in a new spot. */
 const cursorLabel=document.getElementById('cursorLabel');
-const {Engine,Bodies,Body,Composite,Events}=Matter;
+const {Engine,Bodies,Body,Composite,Events}=window.Matter||{}; // page still works if the physics file fails to load
 const cv=$('#letters'), ctx=cv.getContext('2d');
 const LINES=['rïss','crëative','cö.']; // rüfüs-style dots on the name
 let engine, glyphs=[], W=0, H=0, DPR=1, fontPx=0, raf=0, running=false, built=false, pointerBody, lastT=0;
@@ -902,7 +903,7 @@ function frame(t){
   raf=requestAnimationFrame(frame);
 }
 let introGate=false;
-function startPhysics(){ if(body.classList.contains('loading')||introGate) return; if(!built) build(); if(running) return; running=true; lastT=0; raf=requestAnimationFrame(frame); }
+function startPhysics(){ if(!window.Matter||body.classList.contains('loading')||introGate) return; if(!built) build(); if(running) return; running=true; lastT=0; raf=requestAnimationFrame(frame); }
 function stopPhysics(){ running=false; cancelAnimationFrame(raf); }
 let rz; addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(()=>{ if(!built) return; const was=running; stopPhysics(); Composite.clear(engine.world); Events.off(engine); built=false; if(currentView==='home'&&was) startPhysics(); },250); });
 document.addEventListener('visibilitychange',()=>{ if(document.hidden) stopPhysics(); else if(currentView==='home') startPhysics(); });
