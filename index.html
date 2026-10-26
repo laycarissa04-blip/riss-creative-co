@@ -409,7 +409,7 @@ body.loading .count{opacity:0}
 /* ---------- menu ---------- */
 .menu{position:fixed;inset:0;height:calc(var(--vh)*100);background:var(--paper);color:var(--ink);z-index:450;opacity:0;visibility:hidden;transition:opacity .5s var(--ease),visibility .5s var(--ease)}
 body.menu-open .menu{opacity:1;visibility:visible}
-.menu-scroll{/* taste-skill-ignore: mask fade, not a fill */position:absolute;inset:0;overflow-y:scroll;scrollbar-width:none;-webkit-mask-image:linear-gradient(transparent 0%,#000 32%,#000 68%,transparent 100%);mask-image:linear-gradient(transparent 0%,#000 32%,#000 68%,transparent 100%)}
+.menu-scroll{/* taste-skill-ignore: mask fade, not a fill */position:absolute;inset:0 0 calc(var(--m)*2 + 2.4em) 0;overflow-y:scroll;scrollbar-width:none;-webkit-mask-image:linear-gradient(transparent 0%,#000 32%,#000 68%,transparent 100%);mask-image:linear-gradient(transparent 0%,#000 32%,#000 68%,transparent 100%)}
 .menu-scroll::-webkit-scrollbar{display:none}
 .menu-set{padding:0 var(--m)}
 .menu .u::after,.hdr .u::after,.slide-text .u::after{border-bottom-color:currentColor}
@@ -417,7 +417,7 @@ body.menu-open .menu{opacity:1;visibility:visible}
 .menu-set a{width:auto!important;position:relative;z-index:1}
 .menu-set a::before{content:"// ";color:var(--grey);font-family:var(--label);font-size:.32em;vertical-align:.9em;margin-right:.3em}
 .menu-set a{font-weight:200;display:block;width:fit-content;font-size:clamp(46px,6.2vw,104px);line-height:1.12;letter-spacing:-.01em}
-.menu-foot{position:absolute;left:var(--m);right:var(--m);bottom:var(--m);display:flex;gap:1.2em;flex-wrap:wrap;font-size:var(--f1)}
+.menu-foot{position:absolute;left:var(--m);right:var(--m);bottom:var(--m);z-index:2;background:var(--paper);padding-top:.6em;display:flex;gap:1.2em;flex-wrap:wrap;font-size:var(--f1)}
 
 /* ---------- loader + screensaver ---------- */
 .blackout{position:fixed;inset:0;height:calc(var(--vh)*100);background:#000;display:flex;align-items:center;justify-content:center;z-index:99990;transition:opacity .6s var(--ease),visibility .6s var(--ease)}
