@@ -250,7 +250,6 @@ body.loading .reel{opacity:0}
 
 /* caption, bottom left */
 .cap{position:fixed;z-index:30;left:var(--m);bottom:var(--m);max-width:calc(100% - var(--m)*2 - 210px);mix-blend-mode:difference;color:#fff;line-height:1.05;transition:opacity 1.6s var(--ease)}
-.cap-n{display:block;font-size:var(--f1);color:var(--grey);margin-bottom:.5em;font-variant-numeric:tabular-nums}
 .cap-t{display:block;font-weight:200;font-size:clamp(34px,4.6vw,78px);letter-spacing:-.02em;line-height:1}
 .cap-s{display:block;font-size:var(--f1);margin-top:.55em;color:#cfcfcf}
 .cap-s a{color:#fff}
@@ -295,6 +294,7 @@ body[data-view="home"] .hdr{mix-blend-mode:difference}
 @keyframes cth-bite{0%,31%{transform:none}34%,40%{transform:scaleY(.93) scaleX(1.012)}50%,64%{transform:none}68%,76%{transform:scaleY(.88) scaleX(1.02)}86%,100%{transform:none}}
 
 /* crystal fambrini: rapid stack of her frames, then the showreel frame grows into the landing */
+@media (orientation:landscape){.intro.mob{display:none}}
 .intro.snap,.intro.snap *{transition:none!important;animation:none!important}
 .cf-ld{position:absolute;inset:0;background:#f4f2ee;color:#1d1916;transition:opacity .3s ease}
 .intro.out .cf-ld{opacity:0}
@@ -529,7 +529,6 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
     <a class="reel-hit" id="winLink" href="#" target="_blank" rel="noopener"></a>
     <canvas id="letters" aria-hidden="true"></canvas>
     <div class="cap" id="cap">
-      <span class="cap-n mono"><span id="countNum">01</span> / <span id="countOf">01</span></span>
       <span class="cap-swap"><a class="cap-t keep-case" id="winTitle" href="#" target="_blank" rel="noopener"></a><span class="cap-s mono"><span id="winSub"></span> · <a class="u" id="winUrl" href="#" target="_blank" rel="noopener"></a></span></span>
     </div>
     <button class="navside prev u" id="prevBtn" hidden>previous</button>
@@ -651,16 +650,14 @@ const PROJECTS = [
     title: "crystal fambrini",
     sub: "website design & build",
     url: "https://crystalfambrini.com",
-    image: "media/crystalfambrini.jpg",
-    imageSmall: "media/crystalfambrini-1600.jpg",
+    image: "media/crystalfambrini-reel-poster.jpg", // first frame of the reel (desktop)
     imageMobile: "media/crystalfambrini-m.jpg",
-    ratio: "16/9", ratioMobile: "390/844",
+    ratio: "1462/720", ratioMobile: "390/844",
     thumb: "media/crystalfambrini-thumb.jpg",
-    intro: "cf",
-    // her landing video plays (muted) inside the screenshot; the overlay puts her title + buttons back on top
-    live: { src: "media/crystalfambrini-reel.mp4",
-            box: [0, 7.111, 100, 84.667],  boxMobile: [0, 7.583, 100, 25.992],   // % of the screenshot: left, top, width, height
-            over: "media/crystalfambrini-over.webp", overMobile: "media/crystalfambrini-m-over.webp" },
+    // first 10s of a screen recording of her site — her own loader is in the clip, so the replayed intro only runs on phones
+    intro: "cf", introMobileOnly: true,
+    live: { src: "media/crystalfambrini-reel.mp4", box: [0, 0, 100, 100], desktopOnly: true },
+    hold: 10000,
     blurb: "personal brand site for a los angeles realtor, tv host and executive producer: listings, interviews and her showreel."
   }
 ];
@@ -743,7 +740,6 @@ function stopVid(i){ const v=vidOf(i); if(v){ v.pause(); try{ v.currentTime=0; }
 function startVid(i){ const v=vidOf(i); if(v&&getComputedStyle(v).display!=='none'&&currentView==='home'&&!document.hidden){ v.play().catch(()=>{}); } }
 const playSlide=i=>slides.forEach((s,j)=>{ s.classList.toggle('cur',j===i); if(j!==i) stopVid(j); });
 if(PROJECTS.length>1){ $('#prevBtn').hidden=false; $('#nextBtn').hidden=false; }
-$('#countOf').textContent=String(PROJECTS.length).padStart(2,'0');
 $('#prevBtn').onclick=()=>flipTo(cur-1,-1); $('#nextBtn').onclick=()=>flipTo(cur+1,1);
 function setCaption(i=cur){ const p=PROJECTS[i];
   ['#winLink','#winTitle','#winUrl'].forEach(s=>$(s).href=p.url);
@@ -817,7 +813,7 @@ const HOLD=7000;   // how long each landing stays up before the cube turns
 const TURN=1300;   // cube turn duration
 slides.forEach((sl,i)=>{
   const p=PROJECTS[i]; if(!p.intro||!INTROS[p.intro]||RM) return;
-  const el=document.createElement('div'); el.className='intro'; el.setAttribute('aria-hidden','true');
+  const el=document.createElement('div'); el.className='intro'+(p.introMobileOnly?' mob':''); el.setAttribute('aria-hidden','true');
   sl.appendChild(el);
   sl._intro=INTROS[p.intro](el);
 });
@@ -829,7 +825,7 @@ const later=(f,ms)=>{ clearTimeout(seqT); seqT=setTimeout(f,ms); };
 const onStage=()=>currentView==='home'&&!document.hidden&&!body.classList.contains('loading');
 function whenOnStage(f){ const tk=token; (function chk(){ if(tk!==token) return; if(onStage()) f(); else later(chk,700); })(); }
 function runFace(i){
-  const tk=++token, it=slides[i]&&slides[i]._intro;
+  const tk=++token, it=slides[i]&&slides[i]._intro&&!(PROJECTS[i].introMobileOnly&&!matchMedia(PORTRAIT).matches)?slides[i]._intro:null;
   const advance=()=>whenOnStage(()=>{
     if(PROJECTS.length>1) flipTo(cur+1,1);
     else if(it){ it.reset(false); later(()=>runFace(cur),900); } // one site: curtains close, loader replays
@@ -846,7 +842,7 @@ function flipTo(n,dir){
   token++; clearTimeout(seqT);
   const A=slides[cur], B=slides[nx], itB=B._intro;
   if(itB) itB.reset(true); // the next face arrives showing its own loader
-  pile(); rollCount(nx+1); swapCaption(nx);
+  pile(); swapCaption(nx);
   if(RM||!cube.animate){ cur=nx; playSlide(cur); runFace(cur); return; }
   turning=true;
   const d=reel.clientWidth/2, pull=d*.3, E=(t)=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
@@ -867,16 +863,6 @@ function flipTo(n,dir){
   };
 }
 function runIntro(i){ runFace(i); } // kept for the loader hook below
-
-/* ---------- project counter ---------- */
-const pad=n=>String(n).padStart(2,'0');
-const countEl=$('#count'), countNum=$('#countNum'), countOf=$('#countOf');
-
-function rollCount(target){ // digits tick up to the current project number
-  if(RM){ countNum.textContent=pad(target); return; }
-  let n=0; const steps=14; const t=setInterval(()=>{ n++; countNum.textContent = n<steps ? pad(Math.floor(Math.random()*99)) : pad(target); if(n>=steps) clearInterval(t); },45);
-}
-
 
 /* ---------- work grid ---------- */
 const wg=$('#wgrid'); if(PROJECTS.length===1) wg.classList.add('single');
@@ -1087,7 +1073,6 @@ const m0=slides[0]&&slides[0].querySelector('.media');
 const vidOk=new Promise(r=>{ if(!m0) return r(); if(m0.tagName==='IMG'){ if(m0.complete) return r(); m0.addEventListener('load',r,{once:true}); m0.addEventListener('error',r,{once:true}); } else { if(m0.readyState>=3) return r(); m0.addEventListener('canplay',r,{once:true}); } setTimeout(r,4000); });
 Promise.all([minShow,Promise.race([Promise.all([fontsOk,vidOk]),cap(1200)])]).then(()=>{
   $('#loader').classList.add('off'); body.classList.remove('loading');
-  setTimeout(()=>rollCount(cur+1),600);
   if(currentView==='home') startPhysics();
   runIntro(cur);
   wake();
