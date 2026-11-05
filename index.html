@@ -388,6 +388,25 @@ body.loading .badge{opacity:0}
 .cta-band:hover .band span{animation-duration:14s}
 
 
+/* about: one sentence, held on screen while you scroll; the words fill in as you read */
+#about.page{min-height:0;height:calc(var(--vh)*190);padding:0 var(--m)}
+.about-pin{position:sticky;top:0;height:calc(var(--vh)*100);display:flex;align-items:flex-start;padding-top:calc(var(--m)*4.2)}
+#readText.read{font-size:clamp(28px,4.1vw,72px);line-height:1.08;letter-spacing:-.02em;max-width:15em;will-change:transform}
+.read .w{color:#dcdcdc;transition:color .35s var(--ease)}
+.read .w.on{color:#000}
+/* services: plain white; each line is revealed by a black highlight that grows as you scroll */
+#services,#services .ss-slide{background:#fff}
+#services .ss-bg{display:none}
+@property --rv{syntax:'<percentage>';inherits:false;initial-value:0%}
+#services .ss-copy .sw{color:#fff;background:linear-gradient(#000,#000) 0 0/var(--rv,0%) 100% no-repeat;transition:--rv .9s var(--ease)}
+#services .ss-sub{color:#fff}
+#services .tbtn{--fg:#000;--bg:#fff;--rest:rgba(255,255,255,.7);--lit:#161616;margin-top:2em} /* same glow button as the header, dark on white */
+#services .ss-dots{background:#f0f0f0}
+#services .ss-ui{bottom:auto;transition:top .5s var(--ease)}
+#services .ss-dots button{background:rgba(0,0,0,.25)}
+#services .ss-dots button.on::after{background:#000}
+body[data-view="services"]:not(.menu-open) .hdr{background:#fff;color:#000}
+body[data-view="services"]:not(.menu-open) .hdr .tbtn{--fg:#000;--bg:#fff;--rest:rgba(255,255,255,.7);--lit:#161616}
 /* sections alternate white / black as you scroll */
 #about{background:#fff;color:#000;--hl-ink:#000;--hl-paper:#fff}
 #about .caps li::before{color:#000}
@@ -404,13 +423,13 @@ body[data-view="about"]:not(.menu-open) .hdr .tbtn{--fg:#000;--bg:#fff;--rest:rg
 a.hl.u::after{display:none}
 /* services: full-screen slideshow */
 .svcshow{position:relative;height:calc(var(--vh)*100*var(--n,5));background:#000} /* one screen of scroll per service */
-.ss-pin{position:sticky;top:0;height:calc(var(--vh)*100);overflow:hidden}
+.ss-pin{position:sticky;top:0;height:calc(var(--vh)*100);overflow:hidden;display:flex;flex-direction:column;background:#fff;color:#000}
+.ss-pin #readText{flex:none;padding:calc(var(--m)*4.2) var(--m) 0}
+.ss-track{position:relative;flex:1;min-height:0}
+.anchor{height:0}
 /* as each service comes up, a white block runs over the words and off again (same highlight as the rest of the site) */
 .ss-copy .sw{-webkit-box-decoration-break:clone;box-decoration-break:clone;background:linear-gradient(#fff,#fff) 0 0/0% 100% no-repeat;padding:0 .08em}
-.ss-slide.on .ss-copy h2 .sw{animation:sweep 1.5s var(--ease) .35s both}
-.ss-slide.on .ss-copy .ss-sub .sw{animation:sweep 1.5s var(--ease) .6s both}
-@keyframes sweep{0%{background-size:0% 100%;background-position:0 0;color:#fff}38%{background-size:100% 100%;background-position:0 0;color:#000}62%{background-size:100% 100%;background-position:100% 0;color:#000}100%{background-size:0% 100%;background-position:100% 0;color:#fff}}
-@media (prefers-reduced-motion:reduce){.ss-slide.on .ss-copy .sw{animation:none}}
+
 .ss-slide{position:absolute;inset:0;display:grid;place-items:center;opacity:0;visibility:hidden;transition:opacity .9s var(--ease),visibility .9s}
 .ss-slide.on{opacity:1;visibility:visible}
 .ss-bg{position:absolute;inset:0;overflow:hidden}
@@ -613,37 +632,35 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
   </section>
 
   <!-- ABOUT -->
-  <section class="view flow page" id="about" data-view="about">
-    <h1 class="ptitle"><span class="dot">•</span>about</h1>
-    <div class="big">
-      <p>riss creative co. <span class="g">is a los angeles digital studio</span> founded by carissa&nbsp;lay.</p>
-    </div>
-
-  </section>
+  <div id="about" class="anchor" aria-hidden="true"></div>
 
   <!-- SERVICES -->
   <section class="view flow svcshow" id="services" data-view="services" aria-roledescription="carousel" aria-label="Services">
     <h1 class="sr">Services</h1>
     <div class="ss-pin">
+    <h2 class="sr">About</h2>
+    <div class="big read" id="readText">
+      <p>riss creative co. is a los angeles digital studio founded by carissa&nbsp;lay.</p>
+    </div>
     <div class="ss-track">
       <article class="ss-slide on" data-i="0">
         <div class="ss-bg bg-web"><img src="media/campthehills.jpg" alt=""></div>
         <div class="ss-copy"><h2><span class="sw">website design &amp; build</span></h2>
-          <p class="ss-sub"><span class="sw">custom websites, designed and developed in-house.</span></p>
-          <a class="ss-pill" href="/contact">start a project</a></div>
+          <p class="ss-sub"><span class="sw">custom websites, designed and developed.</span></p>
+          <a class="ss-pill tbtn" href="/contact">start a project</a></div>
       </article>
       <article class="ss-slide" data-i="1">
         <div class="ss-bg bg-brand" aria-hidden="true"><div class="spec">Aa</div><div class="swatches mono"><span style="--c:#000">#000000</span><span style="--c:#fff">#ffffff</span><span style="--c:#d7f766">#d7f766</span><span style="--c:#8a8a8a">#8a8a8a</span></div><div class="glyphs">a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9 &amp; ? !</div></div>
         <div class="ss-copy"><h2><span class="sw">brand identity</span></h2>
           <p class="ss-sub"><span class="sw">logo, typography and color systems that make your business recognizable.</span></p>
-          <a class="ss-pill" href="/contact">start a project</a></div>
+          <a class="ss-pill tbtn" href="/contact">start a project</a></div>
       </article>
       <article class="ss-slide" data-i="2">
         <div class="ss-bg bg-seo" aria-hidden="true"><div class="search"><span class="q" data-q="web designer near me"></span><span class="cur"></span></div>
           <ol class="results mono"><li><b>your business</b> — the site people were looking for</li><li>maps · reviews · hours · directions</li><li>google business profile verified</li></ol></div>
         <div class="ss-copy"><h2><span class="sw">seo &amp; google</span></h2>
           <p class="ss-sub"><span class="sw">search-ready sites and google business profiles, so clients can find you.</span></p>
-          <a class="ss-pill" href="/contact">start a project</a></div>
+          <a class="ss-pill tbtn" href="/contact">start a project</a></div>
       </article>
       <article class="ss-slide" data-i="3">
         <div class="ss-bg bg-care" aria-hidden="true"><div class="log mono"><div class="roll">
@@ -651,7 +668,7 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
           <p>+ new page added — menu</p><p>~ hours updated for the holidays</p><p>+ gallery: 12 new photos</p><p>~ booking link refreshed</p><p>backups checked</p><p>+ press section added</p><p>~ shop prices updated</p><p>speed check passed</p></div></div></div>
         <div class="ss-copy"><h2><span class="sw">ongoing care</span></h2>
           <p class="ss-sub"><span class="sw">monthly updates and maintenance after launch.</span></p>
-          <a class="ss-pill" href="/contact">start a project</a></div>
+          <a class="ss-pill tbtn" href="/contact">start a project</a></div>
       </article>
       <article class="ss-slide" data-i="4">
         <div class="ss-bg bg-ai" aria-hidden="true"><div class="inbox mono"><div class="roll">
@@ -659,11 +676,11 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
           <p><i>booked</i> consult — thu 2:00pm, added to calendar</p><p><i>drafted</i> reply to new inquiry — waiting for your ok</p><p><i>sent</i> reminder — deposit due friday</p><p><i>sorted</i> 14 emails → clients / invoices / later</p><p><i>booked</i> fitting — sat 11:30am</p><p><i>sent</i> follow-up — "how did we do?"</p></div></div></div>
         <div class="ss-copy"><h2><span class="sw">ai consulting</span></h2>
           <p class="ss-sub"><span class="sw">automated scheduling, reminders and inbox management, so you can focus on your work.</span></p>
-          <a class="ss-pill" href="/contact">start a project</a></div>
+          <a class="ss-pill tbtn" href="/contact">start a project</a></div>
       </article>
-    </div>
     <div class="ss-ui">
       <div class="ss-dots" role="tablist"></div>
+    </div>
     </div>
     </div>
   </section>
@@ -1141,6 +1158,28 @@ function wake(){ if(saver.classList.contains('on')){ saver.classList.remove('on'
 ['pointermove','pointerdown','keydown','scroll','touchstart','wheel'].forEach(ev=>addEventListener(ev,wake,{passive:true}));
 
 
+/* ---------- about: the sentence reads itself in; scrolling scrubs and shifts it ---------- */
+(function(){
+  const root=document.getElementById('services'), box=document.getElementById('readText'); if(!root||!box) return;
+  box.querySelectorAll('p').forEach(p=>{ p.innerHTML=p.innerHTML.split(/(\s+)/).map(t=>/^\s+$/.test(t)?t:`<span class="w">${t}</span>`).join(''); });
+  const words=[...box.querySelectorAll('.w')], N=words.length;
+  let shown=0, lastScroll=-1e9, lastT=0, raf=0;
+  const prog=()=>{ const r=root.getBoundingClientRect(); return Math.max(0,Math.min(1,(innerHeight*.6-r.top)/(innerHeight*1.1))); }; // reads in over the first screen of the section
+  const near=()=>{ const r=root.getBoundingClientRect(); return r.top<innerHeight&&r.bottom>0; };
+  function paint(){ const n=Math.round(shown); words.forEach((w,i)=>w.classList.toggle('on',i<n)); }
+  function tick(t){ raf=0; const dt=Math.min(.05,(t-(lastT||t))/1000); lastT=t;
+    if(RM){ shown=N; paint(); return; }
+    const p=prog();
+    if(performance.now()-lastScroll<650){ shown=Math.min(N,p*1.2*N); }   // scrolling: the words follow your scroll
+    else if(shown<N){ shown=Math.min(N,shown+dt*8); }                     // still: it keeps reading itself in, ~8 words a second
+    paint();
+    if(near()&&(shown<N||performance.now()-lastScroll<650)) raf=requestAnimationFrame(tick); else lastT=0;
+  }
+  const kick=()=>{ if(!raf&&near()) raf=requestAnimationFrame(tick); };
+  addEventListener('scroll',()=>{ if(near()) lastScroll=performance.now(); kick(); },{passive:true});
+  addEventListener('resize',kick); kick();
+})();
+
 /* ---------- services: scroll through the slides ---------- */
 (function(){
   const root=document.getElementById('services'); if(!root) return;
@@ -1150,11 +1189,20 @@ function wake(){ if(saver.classList.contains('on')){ saver.classList.remove('on'
   slides.forEach((sl,k)=>{ const b=document.createElement('button'); b.setAttribute('role','tab'); b.setAttribute('aria-label','Show '+sl.querySelector('h2').textContent); b.onclick=()=>go(k); dots.appendChild(b); });
   const btns=[...dots.children];
   function typeQuery(sl){ const q=sl.querySelector('.q'); if(!q) return; const txt=q.dataset.q; q.textContent=''; let n=0; clearInterval(q._t); q._t=setInterval(()=>{ q.textContent=txt.slice(0,++n); if(n>=txt.length) clearInterval(q._t); },70); }
-  function show(k){ if(k===i) return; i=k; slides.forEach((s,j)=>s.classList.toggle('on',j===i)); btns.forEach((b,j)=>{ b.classList.toggle('on',j===i); b.setAttribute('aria-selected',j===i); }); typeQuery(slides[i]); }
+  const ui=root.querySelector('.ss-ui');
+  function seat(){ const c=slides[Math.max(0,i)].querySelector('.ss-copy'); if(c) ui.style.top=(c.offsetTop+c.offsetHeight+30)+'px'; } // dots sit right under the button
+  function show(k){ if(k===i) return; i=k; slides.forEach((s,j)=>s.classList.toggle('on',j===i)); btns.forEach((b,j)=>{ b.classList.toggle('on',j===i); b.setAttribute('aria-selected',j===i); }); typeQuery(slides[i]); seat(); }
+  addEventListener('resize',seat); if(document.fonts) document.fonts.ready.then(seat);
   const span=()=>root.offsetHeight-innerHeight;
   function go(k){ k=Math.max(0,Math.min(N-1,k)); scrollTo({top:root.getBoundingClientRect().top+scrollY+span()*(k+.5)/N,behavior:RM?'auto':'smooth'}); }
-  function sync(){ const p=-root.getBoundingClientRect().top/span(); show(Math.max(0,Math.min(N-1,Math.floor(p*N)))); }
-  addEventListener('scroll',sync,{passive:true}); addEventListener('resize',sync); sync();
+  const parts=slides.map(sl=>[sl.querySelector('h2 .sw'),sl.querySelector('.ss-sub .sw')]);
+  const clamp=v=>Math.max(0,Math.min(1,v));
+  function sync(){ const p=-root.getBoundingClientRect().top/span(); show(Math.max(0,Math.min(N-1,Math.floor(p*N))));
+    // inside each slide's stretch of scroll: the heading's highlight grows first, then the line under it
+    parts.forEach(([h,sub],k)=>{ const t=RM?1:p*N-k; h&&h.style.setProperty('--rv',clamp(t/.4)*100+'%'); sub&&sub.style.setProperty('--rv',clamp((t-.3)/.4)*100+'%'); }); }
+  // when nobody's scrolling, the current service finishes revealing on its own
+  let idle=0; function settle(){ const [h,sub]=parts[Math.max(0,i)]; h&&h.style.setProperty('--rv','100%'); setTimeout(()=>sub&&sub.style.setProperty('--rv','100%'),350); }
+  addEventListener('scroll',()=>{ sync(); clearTimeout(idle); idle=setTimeout(settle,700); },{passive:true}); addEventListener('resize',sync); sync(); idle=setTimeout(settle,1800);
   addEventListener('keydown',e=>{ if(currentView!=='services') return; if(e.key==='ArrowRight') go(i+1); if(e.key==='ArrowLeft') go(i-1); });
   window.__ssStart=sync;
 })();
