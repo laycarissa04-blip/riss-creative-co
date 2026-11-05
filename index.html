@@ -281,8 +281,11 @@ body.loading .reel{opacity:0}
 .lvid,.lover{left:var(--x);top:var(--y);width:var(--w);height:var(--h);max-width:none}
 .lvid{object-fit:contain;background:transparent}
 .lover{object-fit:fill}
+.bgblur{display:none;position:absolute;inset:-6%;width:112%;height:112%;object-fit:cover;filter:blur(26px) brightness(.55);pointer-events:none}
 @media (orientation:portrait){
   .stage{--ar:var(--arm)}
+  .stage.fitm{width:100vw} /* phones: the site's video, whole, across the screen */
+  .bgblur{display:block}
   .lvid,.lover{left:var(--xm);top:var(--ym);width:var(--wm);height:var(--hm)}
   .lvid.dsk{display:none}
 }
@@ -298,6 +301,8 @@ body.loading .reel{opacity:0}
 .cap-t,#winUrl{background:linear-gradient(#fff,#fff) 0 0/0% 100% no-repeat;transition:background-size .55s var(--ease),color .3s var(--ease)}
 .cap-t:hover,.cap-t:focus-visible,#winUrl:hover,#winUrl:focus-visible{background-size:100% 100%;color:#000} /* under the caption's difference blend: the block inverts what's behind, the letters go see-through, like the title */
 #winUrl:hover::after,#winUrl:focus-visible::after{transform:scaleX(0)}
+/* phones: a tap leaves :hover stuck on, so the hover blocks only run with a real mouse */
+@media (hover:none){.cap-t:hover,#winUrl:hover{background-size:0% 100%;color:#fff}.hl:hover{background-size:0% 100%;color:inherit}.tbtn:hover:not(:active){color:var(--fg)}.tbtn:hover:not(:active)::after{background-color:var(--rest,rgba(0,0,0,.55))}}
 body.loading .cap{opacity:0}
 .cap-swap{display:inline-block;transition:transform .6s var(--ease),opacity .4s}
 .cap.out .cap-swap{transform:translateY(40%);opacity:0}
@@ -717,12 +722,11 @@ const PROJECTS = [
     sub: "website design & build",
     url: "https://campthehills.net",
     image: "media/campthehills-reel-poster.jpg?v=hq", // first frame of the reel (desktop)
-    imageMobile: "media/campthehills-m.jpg",   // phone screenshot, used on portrait screens
-    ratio: "1356/720", ratioMobile: "390/844", // shape of the reel / phone screenshot
+    ratio: "1356/720",                          // shape of the reel
     thumb: "media/campthehills-thumb.jpg",     // work page
     intro: "cth",                              // replays the site's own loading screen, then drops into its landing (see INTROS)
     // 12s scroll-through of the live site, plays full-frame after the loader (landscape screens; phones keep the screenshot)
-    live: { src: "media/campthehills-reel.mp4?v=hq", box: [0, 0, 100, 100], desktopOnly: true },
+    live: { src: "media/campthehills-reel.mp4?v=hq", box: [0, 0, 100, 100] },
     hold: 11400,                               // landing stays up for the length of the reel
     blurb: "artist website for a los angeles musician: music, video, shows and links in one place."
   },
@@ -732,12 +736,11 @@ const PROJECTS = [
     sub: "website design & build",
     url: "https://crystalfambrini.com",
     image: "media/crystalfambrini-reel-poster.jpg?v=hq", // first frame of the reel (desktop)
-    imageMobile: "media/crystalfambrini-m.jpg",
-    ratio: "1356/720", ratioMobile: "390/844",
+    ratio: "1356/720",
     thumb: "media/crystalfambrini-thumb.jpg",
     intro: "cf",                               // replays her site's loader, then drops into the reel
     // 12s scroll-through of the live site, starting on her landing (landscape screens; phones keep the screenshot)
-    live: { src: "media/crystalfambrini-reel.mp4?v=hq", box: [0, 0, 100, 100], desktopOnly: true },
+    live: { src: "media/crystalfambrini-reel.mp4?v=hq", box: [0, 0, 100, 100] },
     hold: 11400,
     blurb: "personal brand site for a los angeles realtor, tv host and executive producer: listings, interviews and her showreel."
   }
@@ -810,7 +813,7 @@ PROJECTS.forEach((p,i)=>{
   const v=p.live, bx=(b,m)=>`--x${m}:${b[0]}%;--y${m}:${b[1]}%;--w${m}:${b[2]}%;--h${m}:${b[3]}%;`;
   const live=v?`<video class="lvid${v.desktopOnly?' dsk':''}" muted loop playsinline preload="${i===0?'auto':'metadata'}" src="${v.src}" style="${bx(v.box,'')}${bx(v.boxMobile||v.box,'m')}"></video>
       ${v.over?`<picture>${v.overMobile?`<source media="${PORTRAIT}" srcset="${v.overMobile}">`:''}<img class="lover" src="${v.over}" alt="" style="${bx(v.box,'')}${bx(v.boxMobile||v.box,'m')}"></picture>`:''}`:'';
-  d.innerHTML=`<div class="stage" style="--ard:${p.ratio||'16/9'};--arm:${p.ratioMobile||p.ratio||'16/9'}">
+  d.innerHTML=`${v?`<img class="bgblur" src="${p.image}" alt="" aria-hidden="true">`:''}<div class="stage${v?' fitm':''}" style="--ard:${p.ratio||'16/9'};--arm:${p.ratioMobile||p.ratio||'16/9'}">
       <picture>${p.imageMobile?`<source media="${PORTRAIT}" srcset="${p.imageMobile}">`:''}<img class="media" src="${p.image}" srcset="${p.imageSmall?p.imageSmall+' 1600w, ':''}${p.image} ${p.imageSmall?'3000w':'1600w'}" sizes="100vw" alt="${p.title} website homepage" ${i===0?'fetchpriority="high"':''}></picture>
       ${live}</div>`;
   cube.appendChild(d);

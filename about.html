@@ -217,17 +217,21 @@ body:not([data-view="home"]):not(.menu-open) .hdr{padding-bottom:calc(var(--m)*.
 body.menu-open .hdr-logo{opacity:0}
 body[data-view="project"] .hdr{opacity:0;pointer-events:none;visibility:hidden}
 .hdr-menu{line-height:1}
+.hdr-r{display:flex;gap:10px;align-items:flex-start;pointer-events:none}
+.hdr-r>*{pointer-events:auto}
+.hdr-contact{transition:opacity .5s var(--ease),transform .5s var(--ease),visibility .5s,color .45s var(--ease)}
+body.at-bottom .hdr-contact,body.menu-open .hdr-contact{opacity:0;visibility:hidden;transform:translateY(-8px);pointer-events:none}
 
 /* ---------- glow buttons (menu + start a project) ----------
    frosted, clipped bottom-right corner; on hover it lights up and a soft
    colour bloom spins round the edge (after trinity®). */
 @property --ga{syntax:'<angle>';inherits:false;initial-value:0deg}
-.tbtn{--fg:#fff;--bg:#000;--cut:9px;position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:.4em;
+.tbtn{--fg:#fff;--bg:#000;--rest:rgba(0,0,0,.55);--lit:#e8e8e8;--cut:9px;position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:.4em;
   padding:.78em 1.35em;border:0;border-radius:0;background:none;color:var(--fg);font:inherit;font-weight:300;line-height:1;cursor:pointer;
   -webkit-tap-highlight-color:transparent;transition:color .45s var(--ease),transform .45s var(--ease)}
 .tbtn::after{content:"";position:absolute;inset:0;z-index:-1;border-radius:10px;
   background:linear-gradient(to bottom right,transparent calc(50% - .6px),var(--fg) calc(50% - .6px),var(--fg) calc(50% + .6px),transparent calc(50% + .6px)) 100% 100%/var(--cut) var(--cut) no-repeat,
-             color-mix(in srgb,var(--bg) 55%,transparent);
+             var(--rest,rgba(0,0,0,.55));
   box-shadow:inset 0 0 0 1.2px var(--fg);
   clip-path:polygon(0 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%);
   -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:background-color .45s var(--ease)}
@@ -236,7 +240,7 @@ body[data-view="project"] .hdr{opacity:0;pointer-events:none;visibility:hidden}
   filter:blur(13px);opacity:0;transition:opacity .55s var(--ease);animation:tglow 2.6s linear infinite;animation-play-state:paused}
 @keyframes tglow{to{--ga:360deg}}
 .tbtn:hover,.tbtn:focus-visible,.tbtn:active{color:var(--bg)}
-.tbtn:hover::after,.tbtn:focus-visible::after,.tbtn:active::after{background-color:color-mix(in srgb,var(--fg) 91%,var(--bg))}
+.tbtn:hover::after,.tbtn:focus-visible::after,.tbtn:active::after{background-color:var(--lit)}
 .tbtn:hover::before,.tbtn:focus-visible::before,.tbtn:active::before{opacity:.95;animation-play-state:running}
 .tbtn:focus-visible{outline:0}
 /* phones can't hover: let the bloom breathe softly so the buttons still glow */
@@ -244,8 +248,8 @@ body[data-view="project"] .hdr{opacity:0;pointer-events:none;visibility:hidden}
 @keyframes tbreathe{0%,100%{opacity:.18}50%{opacity:.5}}
 @media (prefers-reduced-motion:reduce){.tbtn::before{animation:none}}
 /* the menu button sits in the header: no blend mode, so the glow keeps its colour */
-body[data-view="home"] .hdr:has(.tbtn){mix-blend-mode:normal}
-body.menu-open .hdr .tbtn{--fg:#000;--bg:#fff}
+.hdr,body.menu-open .hdr{mix-blend-mode:normal}
+body.menu-open .hdr .tbtn{--fg:#000;--bg:#fff;--rest:rgba(255,255,255,.7);--lit:#161616}
 .hdr .tbtn{font-size:clamp(15px,1.05vw,18px)}
 /* start a project: same button, a touch bigger, replaces the white pill */
 .ss-pill.tbtn{background:none;color:var(--fg);border-radius:0;margin:0;padding:.95em 1.7em}
@@ -255,12 +259,14 @@ body.menu-open .hdr .tbtn{--fg:#000;--bg:#fff}
 /* ---------- views ---------- */
 .view{display:none}
 .view.on{display:block}
+.view.flow{display:block} /* home, about, services, contact: one page, scroll down through them */
+body.solo .view.flow{display:none}
 main{transition:opacity .5s var(--ease)}
 body.leaving main{opacity:0}
 
 /* ---------- home: full-screen portfolio (jealous layout) ---------- */
-#home{position:fixed;inset:0;height:calc(var(--vh)*100);overflow:hidden;touch-action:none}
-.reel{position:fixed;inset:0;z-index:1;overflow:hidden;background:#000;perspective:2200px;perspective-origin:50% 50%;transition:opacity 1.6s var(--ease)}
+#home{position:relative;height:calc(var(--vh)*100);overflow:hidden;touch-action:pan-y}
+.reel{position:absolute;inset:0;z-index:1;overflow:hidden;background:#000;perspective:2200px;perspective-origin:50% 50%;transition:opacity 1.6s var(--ease)}
 body.loading .reel{opacity:0}
 .cube3d{position:absolute;inset:0;transform-style:preserve-3d;-webkit-transform-style:preserve-3d}
 .slide{position:absolute;inset:0;overflow:hidden;background:#000;visibility:hidden;pointer-events:none;backface-visibility:hidden;-webkit-backface-visibility:hidden}
@@ -275,34 +281,38 @@ body.loading .reel{opacity:0}
 .lvid,.lover{left:var(--x);top:var(--y);width:var(--w);height:var(--h);max-width:none}
 .lvid{object-fit:contain;background:transparent}
 .lover{object-fit:fill}
+.bgblur{display:none;position:absolute;inset:-6%;width:112%;height:112%;object-fit:cover;filter:blur(26px) brightness(.55);pointer-events:none}
 @media (orientation:portrait){
   .stage{--ar:var(--arm)}
+  .stage.fitm{width:100vw} /* phones: the site's video, whole, across the screen */
+  .bgblur{display:block}
   .lvid,.lover{left:var(--xm);top:var(--ym);width:var(--wm);height:var(--hm)}
   .lvid.dsk{display:none}
 }
-.reel-hit{position:fixed;inset:0;z-index:20;display:block}
-#letters{position:fixed;inset:0;width:100%;height:100%;z-index:28;pointer-events:none;mix-blend-mode:difference} /* white letters invert whatever is under them */
+.reel-hit{position:absolute;inset:0;z-index:20;display:block}
+#letters{position:absolute;inset:0;width:100%;height:100%;z-index:28;pointer-events:none;mix-blend-mode:difference} /* white letters invert whatever is under them */
 #home.dragging{cursor:grabbing}
 
 /* caption, bottom left */
-.cap{position:fixed;z-index:30;left:var(--m);bottom:var(--m);max-width:calc(100% - var(--m)*2 - 210px);mix-blend-mode:difference;color:#fff;line-height:1.05;transition:opacity 1.6s var(--ease)}
+.cap{position:absolute;z-index:30;left:var(--m);bottom:var(--m);max-width:calc(100% - var(--m)*2 - 210px);mix-blend-mode:difference;color:#fff;line-height:1.05;transition:opacity 1.6s var(--ease)}
 .cap-t{display:block;font-weight:200;font-size:clamp(34px,4.6vw,78px);letter-spacing:-.02em;line-height:1}
 .cap-s{display:block;font-size:var(--f1);margin-top:.55em;color:#cfcfcf}
 .cap-s a{color:#fff}
 .cap-t,#winUrl{background:linear-gradient(#fff,#fff) 0 0/0% 100% no-repeat;transition:background-size .55s var(--ease),color .3s var(--ease)}
 .cap-t:hover,.cap-t:focus-visible,#winUrl:hover,#winUrl:focus-visible{background-size:100% 100%;color:#000} /* under the caption's difference blend: the block inverts what's behind, the letters go see-through, like the title */
 #winUrl:hover::after,#winUrl:focus-visible::after{transform:scaleX(0)}
+/* phones: a tap leaves :hover stuck on, so the hover blocks only run with a real mouse */
+@media (hover:none){.cap-t:hover,#winUrl:hover{background-size:0% 100%;color:#fff}.hl:hover{background-size:0% 100%;color:inherit}.tbtn:hover:not(:active){color:var(--fg)}.tbtn:hover:not(:active)::after{background-color:var(--rest,rgba(0,0,0,.55))}}
 body.loading .cap{opacity:0}
 .cap-swap{display:inline-block;transition:transform .6s var(--ease),opacity .4s}
 .cap.out .cap-swap{transform:translateY(40%);opacity:0}
 
 /* previous / next, vertical on the edges */
-.navside{position:fixed;top:50%;z-index:40;writing-mode:vertical-rl;mix-blend-mode:difference;color:#fff;padding:12px 0;font-size:var(--f1);line-height:1}
+.navside{position:absolute;top:50%;z-index:40;writing-mode:vertical-rl;mix-blend-mode:difference;color:#fff;padding:12px 0;font-size:var(--f1);line-height:1}
 .navside.prev{left:calc(var(--m) - 4px);transform:translateY(-50%) rotate(180deg)}
 .navside.next{right:calc(var(--m) - 4px);transform:translateY(-50%)}
 .navside[hidden]{display:none}
 body.loading .navside{opacity:0}
-body[data-view="home"] .hdr{mix-blend-mode:difference}
 
 /* client intros: each site's own loading screen, looping into its landing */
 .intro{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden;container-type:inline-size}
@@ -383,7 +393,48 @@ body.loading .badge{opacity:0}
 .cta-band:hover .band span{animation-duration:14s}
 
 
+/* about: one sentence, held on screen while you scroll; the words fill in as you read */
+#about.page{min-height:0;height:calc(var(--vh)*190);padding:0 var(--m)}
+.about-pin{position:sticky;top:0;height:calc(var(--vh)*100);display:flex;align-items:flex-start;padding-top:calc(var(--m)*4.2)}
+#readText.read{font-size:clamp(28px,4.1vw,72px);line-height:1.08;letter-spacing:-.02em;max-width:15em;will-change:transform}
+.read .w{color:#dcdcdc;transition:color .35s var(--ease)}
+.read .w.on{color:#000}
+/* services: plain white; each line is revealed by a black highlight that grows as you scroll */
+#services,#services .ss-slide{background:#fff}
+#services .ss-bg{display:none}
+@property --rv{syntax:'<percentage>';inherits:false;initial-value:0%}
+#services .ss-copy .sw{color:#fff;background:linear-gradient(#000,#000) 0 0/var(--rv,0%) 100% no-repeat;transition:--rv .9s var(--ease)}
+#services .ss-sub{color:#fff}
+#services .tbtn{--fg:#000;--bg:#fff;--rest:rgba(255,255,255,.7);--lit:#161616;margin-top:2em} /* same glow button as the header, dark on white */
+#services .ss-dots{background:#f0f0f0}
+#services .ss-ui{bottom:auto;transition:top .5s var(--ease)}
+#services .ss-dots button{background:rgba(0,0,0,.25)}
+#services .ss-dots button.on::after{background:#000}
+body[data-view="services"]:not(.menu-open) .hdr{background:#fff;color:#000}
+body[data-view="services"]:not(.menu-open) .hdr .tbtn{--fg:#000;--bg:#fff;--rest:rgba(255,255,255,.7);--lit:#161616}
+/* sections alternate white / black as you scroll */
+#about{background:#fff;color:#000;--hl-ink:#000;--hl-paper:#fff}
+#about .caps li::before{color:#000}
+#about .ptitle .dot{background:#000}
+#contact{--hl-ink:#fff;--hl-paper:#000}
+body[data-view="about"]:not(.menu-open) .hdr{background:#fff;color:#000}
+body[data-view="about"]:not(.menu-open) .hdr .tbtn{--fg:#000;--bg:#fff;--rest:rgba(255,255,255,.7);--lit:#161616}
+/* services and contact read as one section: the slideshow runs straight into the contact details */
+#contact.page{min-height:0;padding-top:calc(var(--m)*2.5);background:#000}
+#contact .ptitle{font-size:var(--f2);text-align:left;margin:0 0 calc(var(--m)*1.4)}
+/* text hover: a block sweeps in behind and the words knock out of it (same as the project caption) */
+.hl{background:linear-gradient(var(--hl-ink),var(--hl-ink)) 0 0/0% 100% no-repeat;transition:background-size .55s var(--ease),color .3s var(--ease)}
+.hl:hover,.hl:focus-visible{background-size:100% 100%;color:var(--hl-paper)}
+a.hl.u::after{display:none}
 /* services: full-screen slideshow */
+.svcshow{position:relative;height:calc(var(--vh)*100);background:#000} /* one screen; services rotate on their own */
+.ss-pin{position:relative;height:calc(var(--vh)*100);overflow:hidden;display:flex;flex-direction:column;background:#fff;color:#000}
+.ss-pin #readText{flex:none;padding:calc(var(--m)*4.2) var(--m) 0}
+.ss-track{position:relative;flex:1;min-height:0}
+.anchor{height:0}
+/* as each service comes up, a white block runs over the words and off again (same highlight as the rest of the site) */
+.ss-copy .sw{-webkit-box-decoration-break:clone;box-decoration-break:clone;background:linear-gradient(#fff,#fff) 0 0/0% 100% no-repeat;padding:0 .08em}
+
 .ss-slide{position:absolute;inset:0;display:grid;place-items:center;opacity:0;visibility:hidden;transition:opacity .9s var(--ease),visibility .9s}
 .ss-slide.on{opacity:1;visibility:visible}
 .ss-bg{position:absolute;inset:0;overflow:hidden}
@@ -391,7 +442,7 @@ body.loading .badge{opacity:0}
 .ss-copy{position:relative;z-index:2;text-align:center;padding:0 var(--m);max-width:1200px;transform:translateY(24px);opacity:0;transition:transform 1.1s var(--ease) .15s,opacity .9s var(--ease) .15s}
 .ss-slide.on .ss-copy{transform:none;opacity:1}
 .ss-eye{color:var(--neon);font-size:var(--f1);margin-bottom:1.2em}
-.ss-copy h2{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(34px,5.2vw,88px);line-height:1;letter-spacing:-.01em;text-wrap:balance}
+.ss-copy h2{font-weight:300;text-transform:uppercase;font-size:clamp(30px,4.6vw,78px);line-height:1.12;letter-spacing:.32em;margin-right:-.32em;text-wrap:balance} /* same light, spaced-out caps as the loading screen */
 .ss-sub{color:#e6e6e6;font-size:clamp(17px,1.5vw,23px);line-height:1.45;max-width:30em;margin:1.4em auto 0}
 .ss-pill{display:inline-block;margin-top:2em;padding:.95em 2.1em;border-radius:999px;background:#fff;color:#000;font-weight:300;font-size:clamp(16px,1.2vw,19px);transition:background .4s var(--ease),transform .4s var(--ease)}
 .ss-pill:hover{background:var(--neon);transform:translateY(-2px)}
@@ -399,7 +450,7 @@ body.loading .badge{opacity:0}
 .ss-dots{display:flex;gap:8px;padding:8px 11px;border-radius:999px;background:#111}
 .ss-dots button{position:relative;width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.45);overflow:hidden;transition:width .5s var(--ease)}
 .ss-dots button.on{width:34px}
-.ss-dots button.on::after{content:"";position:absolute;inset:0;background:#fff;transform-origin:0 50%;animation:ssfill var(--dur,6.5s) linear forwards}
+.ss-dots button.on::after{content:"";position:absolute;inset:0;background:#fff}
 @keyframes ssfill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 .ss-pause{position:absolute;right:var(--m);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;gap:4px}
 .ss-pause span{width:3px;height:12px;background:#fff}
@@ -426,7 +477,7 @@ body.loading .badge{opacity:0}
 .lede .lede-btn{position:fixed;z-index:30;right:var(--m);bottom:var(--m);margin:0;transition:opacity 1.6s var(--ease),color .45s var(--ease),transform .4s var(--ease)}
 body.loading .lede h1{opacity:0}
 body.loading .lede-btn{opacity:0}
-body:not([data-view="home"]) .lede{display:none}
+body:not([data-view="home"]) .lede-btn{opacity:0;pointer-events:none}
 @media (max-width:768px){.lede .lede-btn{padding:.8em 1.5em}.cap{max-width:calc(100% - var(--m)*2)}.cap{bottom:calc(var(--m)*2 + 3.2em)}}
 
  /* ---------- inner pages ---------- */
@@ -501,7 +552,11 @@ body.menu-open .menu{opacity:1;visibility:visible}
 @keyframes blink{50%{opacity:0}}
 .tile.snap{transition:none}
 .blackout.off{opacity:0;visibility:hidden;pointer-events:none}
-#saver{opacity:0;visibility:hidden}
+#loader{background:#fff;color:#000}
+#loader .tile.dot{color:#000}
+#saver{opacity:0;visibility:hidden;background:#fff;color:#000}
+#saver .caret{background:#000}
+#saver .typer .dot{color:#000}
 #saver.on{opacity:1;visibility:visible}
 .alogo{font-weight:200;font-size:clamp(40px,7.2vw,132px);line-height:1;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;padding:.12em .05em;text-transform:lowercase}
 .alogo span{display:inline-block;animation:drop 3.6s cubic-bezier(.34,1.56,.64,1) infinite both}
@@ -550,7 +605,7 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
 
 <header class="hdr">
   <a href="/" class="hdr-logo" aria-label="Riss Creative Co. home">rcc.</a>
-  <button class="hdr-menu tbtn" id="menuBtn" aria-expanded="false" aria-controls="menu">menu</button>
+  <div class="hdr-r"><a class="hdr-contact tbtn" href="/contact">contact</a><button class="hdr-menu tbtn" id="menuBtn" aria-expanded="false" aria-controls="menu">menu</button></div>
 </header>
 
 <nav class="menu" id="menu" aria-label="Main">
@@ -563,7 +618,7 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
 
 <main>
   <!-- HOME -->
-  <section class="view on" id="home" data-view="home">
+  <section class="view flow" id="home" data-view="home">
     <div class="reel" id="reel"></div>
     <a class="reel-hit" id="winLink" href="#" target="_blank" rel="noopener"></a>
     <canvas id="letters" aria-hidden="true"></canvas>
@@ -578,77 +633,69 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
   <section class="view page" id="work" data-view="work">
     <h1 class="ptitle"><span class="dot">•</span>work</h1>
     <div class="wgrid" id="wgrid"></div>
-      <a class="cta-band" href="/contact"><div class="band"><span>start a project <i>//</i> start a project <i>//</i> start a project <i>//</i>&nbsp;</span><span>start a project <i>//</i> start a project <i>//</i> start a project <i>//</i>&nbsp;</span></div></a>
 
   </section>
 
   <!-- ABOUT -->
-  <section class="view page" id="about" data-view="about">
-    <h1 class="ptitle"><span class="dot">•</span>about</h1>
-    <div class="big">
-      <p>riss creative co. <span class="g">is a los angeles digital studio</span> founded by carissa&nbsp;lay.</p>
-      <p><span class="g">websites,</span> brand identity <span class="g">and</span> ai systems, <span class="g">designed and built in&#8209;house.</span></p>
-      <ul class="caps mono">
-        <li>web design &amp; development</li><li>brand identity</li><li>seo &amp; search infrastructure</li>
-        <li>rag pipelines &amp; vector databases</li><li>llm integration &amp; agentic workflows</li><li>serverless deployment</li>
-      </ul>
-    </div>
-      <a class="cta-band" href="/contact"><div class="band"><span>start a project <i>//</i> start a project <i>//</i> start a project <i>//</i>&nbsp;</span><span>start a project <i>//</i> start a project <i>//</i> start a project <i>//</i>&nbsp;</span></div></a>
-
-  </section>
+  <div id="about" class="anchor" aria-hidden="true"></div>
 
   <!-- SERVICES -->
-  <section class="view svcshow" id="services" data-view="services" aria-roledescription="carousel" aria-label="Services">
+  <section class="view flow svcshow" id="services" data-view="services" aria-roledescription="carousel" aria-label="Services">
     <h1 class="sr">Services</h1>
+    <div class="ss-pin">
+    <h2 class="sr">About</h2>
+    <div class="big read" id="readText">
+      <p>riss creative co. is a los angeles digital studio founded by carissa&nbsp;lay.</p>
+    </div>
     <div class="ss-track">
       <article class="ss-slide on" data-i="0">
-        <div class="ss-bg bg-web"><img src="media/campthehills.jpg" alt=""></div>
-        <div class="ss-copy"><h2>website design &amp; build</h2>
-          <p class="ss-sub">custom websites, designed and developed in-house.</p>
-          <a class="ss-pill" href="/contact">start a project</a></div>
+        <div class="ss-bg bg-web"></div>
+        <div class="ss-copy"><h2><span class="sw">website design &amp; build</span></h2>
+          <p class="ss-sub"><span class="sw">custom websites, designed and developed.</span></p>
+          <a class="ss-pill tbtn" href="/contact">start a project</a></div>
       </article>
       <article class="ss-slide" data-i="1">
         <div class="ss-bg bg-brand" aria-hidden="true"><div class="spec">Aa</div><div class="swatches mono"><span style="--c:#000">#000000</span><span style="--c:#fff">#ffffff</span><span style="--c:#d7f766">#d7f766</span><span style="--c:#8a8a8a">#8a8a8a</span></div><div class="glyphs">a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9 &amp; ? !</div></div>
-        <div class="ss-copy"><h2>brand identity</h2>
-          <p class="ss-sub">logo, typography and color systems that make your business recognizable.</p>
-          <a class="ss-pill" href="/contact">start a project</a></div>
+        <div class="ss-copy"><h2><span class="sw">brand identity</span></h2>
+          <p class="ss-sub"><span class="sw">logo, typography and color systems that make your business recognizable.</span></p>
+          <a class="ss-pill tbtn" href="/contact">start a project</a></div>
       </article>
       <article class="ss-slide" data-i="2">
         <div class="ss-bg bg-seo" aria-hidden="true"><div class="search"><span class="q" data-q="web designer near me"></span><span class="cur"></span></div>
           <ol class="results mono"><li><b>your business</b> — the site people were looking for</li><li>maps · reviews · hours · directions</li><li>google business profile verified</li></ol></div>
-        <div class="ss-copy"><h2>seo &amp; google</h2>
-          <p class="ss-sub">search-ready sites and google business profiles, so clients can find you.</p>
-          <a class="ss-pill" href="/contact">start a project</a></div>
+        <div class="ss-copy"><h2><span class="sw">seo &amp; google</span></h2>
+          <p class="ss-sub"><span class="sw">search-ready sites and google business profiles, so clients can find you.</span></p>
+          <a class="ss-pill tbtn" href="/contact">start a project</a></div>
       </article>
       <article class="ss-slide" data-i="3">
         <div class="ss-bg bg-care" aria-hidden="true"><div class="log mono"><div class="roll">
           <p>+ new page added — menu</p><p>~ hours updated for the holidays</p><p>+ gallery: 12 new photos</p><p>~ booking link refreshed</p><p>backups checked</p><p>+ press section added</p><p>~ shop prices updated</p><p>speed check passed</p>
           <p>+ new page added — menu</p><p>~ hours updated for the holidays</p><p>+ gallery: 12 new photos</p><p>~ booking link refreshed</p><p>backups checked</p><p>+ press section added</p><p>~ shop prices updated</p><p>speed check passed</p></div></div></div>
-        <div class="ss-copy"><h2>ongoing care</h2>
-          <p class="ss-sub">monthly updates and maintenance after launch.</p>
-          <a class="ss-pill" href="/contact">start a project</a></div>
+        <div class="ss-copy"><h2><span class="sw">ongoing care</span></h2>
+          <p class="ss-sub"><span class="sw">monthly updates and maintenance after launch.</span></p>
+          <a class="ss-pill tbtn" href="/contact">start a project</a></div>
       </article>
       <article class="ss-slide" data-i="4">
         <div class="ss-bg bg-ai" aria-hidden="true"><div class="inbox mono"><div class="roll">
           <p><i>booked</i> consult — thu 2:00pm, added to calendar</p><p><i>drafted</i> reply to new inquiry — waiting for your ok</p><p><i>sent</i> reminder — deposit due friday</p><p><i>sorted</i> 14 emails → clients / invoices / later</p><p><i>booked</i> fitting — sat 11:30am</p><p><i>sent</i> follow-up — "how did we do?"</p>
           <p><i>booked</i> consult — thu 2:00pm, added to calendar</p><p><i>drafted</i> reply to new inquiry — waiting for your ok</p><p><i>sent</i> reminder — deposit due friday</p><p><i>sorted</i> 14 emails → clients / invoices / later</p><p><i>booked</i> fitting — sat 11:30am</p><p><i>sent</i> follow-up — "how did we do?"</p></div></div></div>
-        <div class="ss-copy"><h2>ai consulting</h2>
-          <p class="ss-sub">automated scheduling, reminders and inbox management, so you can focus on your work.</p>
-          <a class="ss-pill" href="/contact">start a project</a></div>
+        <div class="ss-copy"><h2><span class="sw">ai consulting</span></h2>
+          <p class="ss-sub"><span class="sw">automated scheduling, reminders and inbox management, so you can focus on your work.</span></p>
+          <a class="ss-pill tbtn" href="/contact">start a project</a></div>
       </article>
-    </div>
     <div class="ss-ui">
       <div class="ss-dots" role="tablist"></div>
-      <button class="ss-pause" id="ssPause" aria-label="Pause slideshow"><span></span><span></span></button>
+    </div>
+    </div>
     </div>
   </section>
 
   <!-- CONTACT -->
-  <section class="view page" id="contact" data-view="contact" style="position:relative">
+  <section class="view flow page" id="contact" data-view="contact" style="position:relative">
     <h1 class="ptitle"><span class="dot">•</span>contact</h1>
     <div class="contact-lines">
-      <p><span class="grey">email me</span><a class="u" href="mailto:contact@risscreativeco.com?subject=New%20project">contact@risscreativeco.com</a></p>
-      <p><span class="grey">prefer to talk?</span><a class="u" href="https://calendar.app.google/gG18xpzozbiToR9C6" target="_blank" rel="noopener">book a 30-minute call</a></p>
+      <p><span class="grey">email me</span><a class="u hl" href="mailto:contact@risscreativeco.com?subject=New%20project">contact@risscreativeco.com</a></p>
+      <p><span class="grey">prefer to talk?</span><a class="u hl" href="https://calendar.app.google/gG18xpzozbiToR9C6" target="_blank" rel="noopener">book a 30-minute call</a></p>
       <p><span class="grey">based in</span>los angeles, working with clients everywhere</p>
     </div>
   </section>
@@ -674,13 +721,12 @@ const PROJECTS = [
     title: "campthehills",
     sub: "website design & build",
     url: "https://campthehills.net",
-    image: "media/campthehills-reel-poster.jpg", // first frame of the reel (desktop)
-    imageMobile: "media/campthehills-m.jpg",   // phone screenshot, used on portrait screens
-    ratio: "1356/720", ratioMobile: "390/844", // shape of the reel / phone screenshot
+    image: "media/campthehills-reel-poster.jpg?v=hq", // first frame of the reel (desktop)
+    ratio: "1356/720",                          // shape of the reel
     thumb: "media/campthehills-thumb.jpg",     // work page
     intro: "cth",                              // replays the site's own loading screen, then drops into its landing (see INTROS)
     // 12s scroll-through of the live site, plays full-frame after the loader (landscape screens; phones keep the screenshot)
-    live: { src: "media/campthehills-reel.mp4", box: [0, 0, 100, 100], desktopOnly: true },
+    live: { src: "media/campthehills-reel.mp4?v=hq", box: [0, 0, 100, 100] },
     hold: 11400,                               // landing stays up for the length of the reel
     blurb: "artist website for a los angeles musician: music, video, shows and links in one place."
   },
@@ -689,13 +735,12 @@ const PROJECTS = [
     title: "crystal fambrini",
     sub: "website design & build",
     url: "https://crystalfambrini.com",
-    image: "media/crystalfambrini-reel-poster.jpg", // first frame of the reel (desktop)
-    imageMobile: "media/crystalfambrini-m.jpg",
-    ratio: "1356/720", ratioMobile: "390/844",
+    image: "media/crystalfambrini-reel-poster.jpg?v=hq", // first frame of the reel (desktop)
+    ratio: "1356/720",
     thumb: "media/crystalfambrini-thumb.jpg",
     intro: "cf",                               // replays her site's loader, then drops into the reel
     // 12s scroll-through of the live site, starting on her landing (landscape screens; phones keep the screenshot)
-    live: { src: "media/crystalfambrini-reel.mp4", box: [0, 0, 100, 100], desktopOnly: true },
+    live: { src: "media/crystalfambrini-reel.mp4?v=hq", box: [0, 0, 100, 100] },
     hold: 11400,
     blurb: "personal brand site for a los angeles realtor, tv host and executive producer: listings, interviews and her showreel."
   }
@@ -768,7 +813,7 @@ PROJECTS.forEach((p,i)=>{
   const v=p.live, bx=(b,m)=>`--x${m}:${b[0]}%;--y${m}:${b[1]}%;--w${m}:${b[2]}%;--h${m}:${b[3]}%;`;
   const live=v?`<video class="lvid${v.desktopOnly?' dsk':''}" muted loop playsinline preload="${i===0?'auto':'metadata'}" src="${v.src}" style="${bx(v.box,'')}${bx(v.boxMobile||v.box,'m')}"></video>
       ${v.over?`<picture>${v.overMobile?`<source media="${PORTRAIT}" srcset="${v.overMobile}">`:''}<img class="lover" src="${v.over}" alt="" style="${bx(v.box,'')}${bx(v.boxMobile||v.box,'m')}"></picture>`:''}`:'';
-  d.innerHTML=`<div class="stage" style="--ard:${p.ratio||'16/9'};--arm:${p.ratioMobile||p.ratio||'16/9'}">
+  d.innerHTML=`${v?`<img class="bgblur" src="${p.image}" alt="" aria-hidden="true">`:''}<div class="stage${v?' fitm':''}" style="--ard:${p.ratio||'16/9'};--arm:${p.ratioMobile||p.ratio||'16/9'}">
       <picture>${p.imageMobile?`<source media="${PORTRAIT}" srcset="${p.imageMobile}">`:''}<img class="media" src="${p.image}" srcset="${p.imageSmall?p.imageSmall+' 1600w, ':''}${p.image} ${p.imageSmall?'3000w':'1600w'}" sizes="100vw" alt="${p.title} website homepage" ${i===0?'fetchpriority="high"':''}></picture>
       ${live}</div>`;
   cube.appendChild(d);
@@ -939,35 +984,54 @@ function where(){
   }
   return [location.pathname.replace(/^\/+|\/+$|\.html$/g,'')];
 }
+const FLOW=['home','about','services','contact'];
+function setTitleFor(view){ document.title=TITLES[view]||TITLES.home; baseTitle=document.title;
+  const c=document.querySelector('link[rel=canonical]'); if(c) c.href='https://risscreativeco.com/'+(view==='home'?'':view);
+  const here=view==='home'?'/':'/'+view; ms.querySelectorAll('a').forEach(a=>a.classList.toggle('cur',a.getAttribute('href')===here)); }
+function enterView(view){ // the section you're looking at: header style, title, and whether the landing animates
+  if(view===currentView) return; const was=currentView; currentView=view; body.dataset.view=view; setTitleFor(view);
+  if(view==='services'&&window.__ssStart) window.__ssStart();
+  if(view==='home'){ playSlide(cur); startPhysics(); if(!turning) startVid(cur); }
+  else if(was==='home'){ slides.forEach(s=>{const v=s.querySelector('video');v&&v.pause()}); stopPhysics(); }
+}
+function goTo(view,smooth){ const el=document.getElementById(view); if(!el) return;
+  const y=view==='home'?0:el.getBoundingClientRect().top+scrollY; scrollTo({top:y,behavior:smooth&&!RM?'smooth':'auto'}); }
+let scrollTarget=null;
 function route(){
   const [v,slug]=where();
-  let view=['work','about','services','contact'].includes(v)?v:'home';
-  let proj=null;
-  if(v==='work'&&slug){ proj=PROJECTS.find(p=>p.slug===slug); if(proj) view='project'; }
-  const apply=()=>{
-    document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on', s.dataset.view===view || (view==='project'&&s.id==='work')));
-    body.dataset.view=view; currentView=view;
-    const here=view==='home'?'/':'/'+view; ms.querySelectorAll('a').forEach(a=>a.classList.toggle('cur',a.getAttribute('href')===here));
+  if(v==='work'){ // the old work screens still open on their own
+    let view='work', proj=null; if(slug){ proj=PROJECTS.find(p=>p.slug===slug); if(proj) view='project'; }
+    body.classList.add('solo'); document.querySelectorAll('.view:not(.flow)').forEach(s=>s.classList.toggle('on', s.dataset.view===view || (view==='project'&&s.id==='work')));
+    stopPhysics(); currentView=view; body.dataset.view=view;
     if(view==='project'){
       $('#pvid').innerHTML=`<video muted loop playsinline autoplay poster="${proj.poster}" src="${proj.video}"></video>`;
       $('#pmeta').innerHTML=`<h1>${proj.title} — ${proj.sub}</h1><p>${proj.blurb}</p><p><a class="u keep-case" href="${proj.url}" target="_blank" rel="noopener">visit ${proj.url.replace(/^https?:\/\//,'')} ↗︎</a></p>`;
       document.title=proj.title+' — Riss Creative Co.';
-    } else { $('#pvid').innerHTML=''; document.title=TITLES[view]; }
-    if(view==='home'||PAGES.includes(view)){ const c=document.querySelector('link[rel=canonical]'); if(c) c.href='https://risscreativeco.com/'+(view==='home'?'':view); }
-    if(view==='services'&&window.__ssStart) setTimeout(window.__ssStart,50);
-    if(view==='home'){ playSlide(cur); startPhysics(); if(!turning) startVid(cur); } else { slides.forEach(s=>{const v=s.querySelector('video');v&&v.pause()}); stopPhysics(); }
-    if(view!=='project') scrollTo(0,0);
-    baseTitle=document.title;
-  };
-  if(first){ first=false; apply(); return; }
-  body.classList.add('leaving'); setTimeout(()=>{ apply(); body.classList.remove('leaving'); },450);
+    } else { $('#pvid').innerHTML=''; document.title=TITLES.work; scrollTo(0,0); }
+    return;
+  }
+  const wasSolo=body.classList.contains('solo'); body.classList.remove('solo'); document.querySelectorAll('.view:not(.flow)').forEach(s=>s.classList.remove('on')); $('#pvid').innerHTML='';
+  const view=FLOW.includes(v)?v:'home';
+  if(first){ first=false; currentView=null; enterView(view); scrollTarget=view; goTo(view,false); return; }
+  if(wasSolo) currentView=null;
+  goTo(view,true);
 }
+// as you scroll, whichever section fills the middle of the screen is "current"; the address bar follows along
+let scrollTick=0;
+function onScroll(){ scrollTick=0; if(body.classList.contains('solo')) return;
+  const mid=innerHeight*.5; let view='home';
+  for(const id of FLOW){ const r=document.getElementById(id).getBoundingClientRect(); if(r.top<=mid&&r.bottom>mid){ view=id; break; } }
+  if(scrollY+innerHeight>=document.documentElement.scrollHeight-60&&scrollY>0) view='contact'; // contact is short; the bottom of the page counts as it
+  if(view!==currentView){ enterView(view); const path=view==='home'?'/':'/'+view; if(location.pathname!==path||location.hash) history.replaceState(null,'',path); } }
+addEventListener('scroll',()=>{ if(!scrollTick) scrollTick=requestAnimationFrame(onScroll); },{passive:true});
+function atBottom(){ body.classList.toggle('at-bottom', scrollY+innerHeight>=document.documentElement.scrollHeight-60); }
+addEventListener('scroll',atBottom,{passive:true}); addEventListener('resize',atBottom);
 addEventListener('hashchange',route);
 addEventListener('popstate',route);
 document.addEventListener('click',e=>{ // move between pages without a reload
   const a=e.target.closest('a[href^="/"]'); if(!a||a.target==='_blank'||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey) return;
   const path=a.getAttribute('href'); if(path!=='/'&&!PAGES.includes(path.slice(1))) return;
-  e.preventDefault(); if(path!==location.pathname||location.hash){ history.pushState(null,'',path); route(); }
+  e.preventDefault(); if(path!==location.pathname||location.hash||body.classList.contains('solo')) history.pushState(null,'',path); route();
 });
 
 /* ---------- the name, as loose letters (Matter.js) ----------
@@ -1041,7 +1105,8 @@ function frame(t){
   if(!running) return;
   const now=performance.now(), dt=Math.min(32,t-(lastT||t)); lastT=t;
   const px=pointerBody.position.x, py=pointerBody.position.y;
-  Body.setPosition(pointerBody,{x:ptr.x,y:ptr.y}); Body.setVelocity(pointerBody,{x:ptr.x-px,y:ptr.y-py});
+  const hy=ptr.y<-900?ptr.y:ptr.y-cv.getBoundingClientRect().top; // finger/cursor in the canvas's own space
+  Body.setPosition(pointerBody,{x:ptr.x,y:hy}); Body.setVelocity(pointerBody,{x:ptr.x-px,y:hy-py});
   if(mode==='word'){
     if(now>wordUntil){ grav={x:0,y:0}; pile(); }
     else { const k=.02, damp=.84; // spring each letter to its place in the word
@@ -1096,25 +1161,55 @@ function wake(){ if(saver.classList.contains('on')){ saver.classList.remove('on'
 ['pointermove','pointerdown','keydown','scroll','touchstart','wheel'].forEach(ev=>addEventListener(ev,wake,{passive:true}));
 
 
-/* ---------- services slideshow ---------- */
+/* ---------- about: the sentence reads itself in; scrolling scrubs and shifts it ---------- */
+(function(){
+  const root=document.getElementById('services'), box=document.getElementById('readText'); if(!root||!box) return;
+  box.querySelectorAll('p').forEach(p=>{ p.innerHTML=p.innerHTML.split(/(\s+)/).map(t=>/^\s+$/.test(t)?t:`<span class="w">${t}</span>`).join(''); });
+  const words=[...box.querySelectorAll('.w')], N=words.length;
+  let shown=0, lastScroll=-1e9, lastT=0, raf=0;
+  const prog=()=>{ const r=root.getBoundingClientRect(); return Math.max(0,Math.min(1,(innerHeight*.6-r.top)/(innerHeight*1.1))); }; // reads in over the first screen of the section
+  const near=()=>{ const r=root.getBoundingClientRect(); return r.top<innerHeight&&r.bottom>0; };
+  function paint(){ const n=Math.round(shown); words.forEach((w,i)=>w.classList.toggle('on',i<n)); }
+  function tick(t){ raf=0; const dt=Math.min(.05,(t-(lastT||t))/1000); lastT=t;
+    if(RM){ shown=N; paint(); return; }
+    const p=prog();
+    if(performance.now()-lastScroll<650){ shown=Math.min(N,p*1.2*N); }   // scrolling: the words follow your scroll
+    else if(shown<N){ shown=Math.min(N,shown+dt*8); }                     // still: it keeps reading itself in, ~8 words a second
+    paint();
+    if(near()&&(shown<N||performance.now()-lastScroll<650)) raf=requestAnimationFrame(tick); else lastT=0;
+  }
+  const kick=()=>{ if(!raf&&near()) raf=requestAnimationFrame(tick); };
+  addEventListener('scroll',()=>{ if(near()) lastScroll=performance.now(); kick(); },{passive:true});
+  addEventListener('resize',kick); kick();
+})();
+
+/* ---------- services: scroll through the slides ---------- */
 (function(){
   const root=document.getElementById('services'); if(!root) return;
-  const slides=[...root.querySelectorAll('.ss-slide')], dots=root.querySelector('.ss-dots'), DUR=6500;
-  let i=0, t=0, paused=false;
-  slides.forEach((sl,k)=>{ const b=document.createElement('button'); b.setAttribute('role','tab'); b.setAttribute('aria-label','Show '+sl.querySelector('h2').textContent); b.onclick=()=>show(k,true); dots.appendChild(b); });
+  const slides=[...root.querySelectorAll('.ss-slide')], dots=root.querySelector('.ss-dots'), N=slides.length;
+  root.style.setProperty('--n',N);
+  let i=-1;
+  slides.forEach((sl,k)=>{ const b=document.createElement('button'); b.setAttribute('role','tab'); b.setAttribute('aria-label','Show '+sl.querySelector('h2').textContent); b.onclick=()=>go(k); dots.appendChild(b); });
   const btns=[...dots.children];
   function typeQuery(sl){ const q=sl.querySelector('.q'); if(!q) return; const txt=q.dataset.q; q.textContent=''; let n=0; clearInterval(q._t); q._t=setInterval(()=>{ q.textContent=txt.slice(0,++n); if(n>=txt.length) clearInterval(q._t); },70); }
-  function show(k,user){ i=(k+slides.length)%slides.length; slides.forEach((s,j)=>s.classList.toggle('on',j===i)); btns.forEach((b,j)=>{ b.classList.remove('on'); void b.offsetWidth; b.classList.toggle('on',j===i); b.setAttribute('aria-selected',j===i); }); typeQuery(slides[i]); schedule(); }
-  function schedule(){ clearTimeout(t); if(!paused && currentView==='services') t=setTimeout(()=>show(i+1),DUR); }
-  root.style.setProperty('--dur',DUR+'ms');
-  document.getElementById('ssPause').onclick=()=>{ paused=!paused; root.classList.toggle('paused',paused); document.getElementById('ssPause').setAttribute('aria-label',paused?'Play slideshow':'Pause slideshow'); schedule(); };
-  addEventListener('keydown',e=>{ if(currentView!=='services') return; if(e.key==='ArrowRight') show(i+1,true); if(e.key==='ArrowLeft') show(i-1,true); });
-  let sx=null, sy=null; root.addEventListener('touchstart',e=>{ sx=e.touches[0].clientX; sy=e.touches[0].clientY },{passive:true});
-  root.addEventListener('touchend',e=>{ if(sx==null) return; const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
-    if(Math.max(Math.abs(dx),Math.abs(dy))>50) show(i+((Math.abs(dx)>Math.abs(dy)?dx:dy)<0?1:-1),true); sx=sy=null; });
-  // mouse wheel / trackpad: one slide per scroll gesture
-  let lock=0; root.addEventListener('wheel',e=>{ e.preventDefault(); const d=Math.abs(e.deltaY)>Math.abs(e.deltaX)?e.deltaY:e.deltaX; if(Math.abs(d)<8||performance.now()<lock) return; lock=performance.now()+950; show(i+(d>0?1:-1),true); },{passive:false});
-    window.__ssStart=()=>show(0);
+  const ui=root.querySelector('.ss-ui');
+  function seat(){ const c=slides[Math.max(0,i)].querySelector('.ss-copy'); if(c) ui.style.top=(c.offsetTop+c.offsetHeight+30)+'px'; } // dots sit right under the button
+  function show(k){ if(k===i) return; i=k; slides.forEach((s,j)=>s.classList.toggle('on',j===i)); btns.forEach((b,j)=>{ b.classList.toggle('on',j===i); b.setAttribute('aria-selected',j===i); }); typeQuery(slides[i]); seat(); }
+  addEventListener('resize',seat); if(document.fonts) document.fonts.ready.then(seat);
+  // no more scroll-jacking: the frame is one screen; services change on their own while it's on screen
+  const parts=slides.map(sl=>[sl.querySelector('h2 .sw'),sl.querySelector('.ss-sub .sw')]);
+  const HOLD=4200; let t=0, hl=[];
+  function reveal(k){ hl.forEach(clearTimeout); hl=[];
+    parts.forEach(([h,sub],j)=>{ if(j!==k){ h&&h.style.setProperty('--rv','0%'); sub&&sub.style.setProperty('--rv','0%'); } });
+    const [h,sub]=parts[k]; if(RM){ h&&h.style.setProperty('--rv','100%'); sub&&sub.style.setProperty('--rv','100%'); return; }
+    hl.push(setTimeout(()=>h&&h.style.setProperty('--rv','100%'),250), setTimeout(()=>sub&&sub.style.setProperty('--rv','100%'),700)); }
+  const inView=()=>{ const r=root.getBoundingClientRect(); return r.top<innerHeight*.6&&r.bottom>innerHeight*.4&&!document.hidden; };
+  function go(k){ show((k+N)%N); reveal(i); clearTimeout(t); t=setTimeout(loop,HOLD); }
+  function loop(){ if(inView()) go(i+1); else t=setTimeout(loop,800); }
+  go(0);
+  let was=false; addEventListener('scroll',()=>{ const v=inView(); if(v&&!was) reveal(i); was=v; },{passive:true});
+  addEventListener('keydown',e=>{ if(currentView!=='services') return; if(e.key==='ArrowRight') go(i+1); if(e.key==='ArrowLeft') go(i-1); });
+  window.__ssStart=()=>{};
 })();
 
 /* ---------- tab title when away ---------- */
@@ -1142,6 +1237,7 @@ const m0=slides[0]&&slides[0].querySelector('.media');
 const vidOk=new Promise(r=>{ if(!m0) return r(); if(m0.tagName==='IMG'){ if(m0.complete) return r(); m0.addEventListener('load',r,{once:true}); m0.addEventListener('error',r,{once:true}); } else { if(m0.readyState>=3) return r(); m0.addEventListener('canplay',r,{once:true}); } setTimeout(r,4000); });
 Promise.all([minShow,Promise.race([Promise.all([fontsOk,vidOk]),cap(1200)])]).then(()=>{
   $('#loader').classList.add('off'); body.classList.remove('loading');
+  if(scrollTarget&&scrollTarget!=='home') goTo(scrollTarget,false);
   if(currentView==='home') startPhysics();
   runIntro(cur);
   wake();
