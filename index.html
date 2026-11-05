@@ -222,12 +222,12 @@ body[data-view="project"] .hdr{opacity:0;pointer-events:none;visibility:hidden}
    frosted, clipped bottom-right corner; on hover it lights up and a soft
    colour bloom spins round the edge (after trinity®). */
 @property --ga{syntax:'<angle>';inherits:false;initial-value:0deg}
-.tbtn{--fg:#fff;--bg:#000;--cut:9px;position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:.4em;
+.tbtn{--fg:#fff;--bg:#000;--rest:rgba(0,0,0,.55);--lit:#e8e8e8;--cut:9px;position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:.4em;
   padding:.78em 1.35em;border:0;border-radius:0;background:none;color:var(--fg);font:inherit;font-weight:300;line-height:1;cursor:pointer;
   -webkit-tap-highlight-color:transparent;transition:color .45s var(--ease),transform .45s var(--ease)}
 .tbtn::after{content:"";position:absolute;inset:0;z-index:-1;border-radius:10px;
   background:linear-gradient(to bottom right,transparent calc(50% - .6px),var(--fg) calc(50% - .6px),var(--fg) calc(50% + .6px),transparent calc(50% + .6px)) 100% 100%/var(--cut) var(--cut) no-repeat,
-             color-mix(in srgb,var(--bg) 55%,transparent);
+             var(--rest,rgba(0,0,0,.55));
   box-shadow:inset 0 0 0 1.2px var(--fg);
   clip-path:polygon(0 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%);
   -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:background-color .45s var(--ease)}
@@ -236,7 +236,7 @@ body[data-view="project"] .hdr{opacity:0;pointer-events:none;visibility:hidden}
   filter:blur(13px);opacity:0;transition:opacity .55s var(--ease);animation:tglow 2.6s linear infinite;animation-play-state:paused}
 @keyframes tglow{to{--ga:360deg}}
 .tbtn:hover,.tbtn:focus-visible,.tbtn:active{color:var(--bg)}
-.tbtn:hover::after,.tbtn:focus-visible::after,.tbtn:active::after{background-color:color-mix(in srgb,var(--fg) 91%,var(--bg))}
+.tbtn:hover::after,.tbtn:focus-visible::after,.tbtn:active::after{background-color:var(--lit)}
 .tbtn:hover::before,.tbtn:focus-visible::before,.tbtn:active::before{opacity:.95;animation-play-state:running}
 .tbtn:focus-visible{outline:0}
 /* phones can't hover: let the bloom breathe softly so the buttons still glow */
@@ -244,8 +244,8 @@ body[data-view="project"] .hdr{opacity:0;pointer-events:none;visibility:hidden}
 @keyframes tbreathe{0%,100%{opacity:.18}50%{opacity:.5}}
 @media (prefers-reduced-motion:reduce){.tbtn::before{animation:none}}
 /* the menu button sits in the header: no blend mode, so the glow keeps its colour */
-body[data-view="home"] .hdr:has(.tbtn){mix-blend-mode:normal}
-body.menu-open .hdr .tbtn{--fg:#000;--bg:#fff}
+.hdr,body.menu-open .hdr{mix-blend-mode:normal}
+body.menu-open .hdr .tbtn{--fg:#000;--bg:#fff;--rest:rgba(255,255,255,.7);--lit:#161616}
 .hdr .tbtn{font-size:clamp(15px,1.05vw,18px)}
 /* start a project: same button, a touch bigger, replaces the white pill */
 .ss-pill.tbtn{background:none;color:var(--fg);border-radius:0;margin:0;padding:.95em 1.7em}
@@ -255,12 +255,14 @@ body.menu-open .hdr .tbtn{--fg:#000;--bg:#fff}
 /* ---------- views ---------- */
 .view{display:none}
 .view.on{display:block}
+.view.flow{display:block} /* home, about, services, contact: one page, scroll down through them */
+body.solo .view.flow{display:none}
 main{transition:opacity .5s var(--ease)}
 body.leaving main{opacity:0}
 
 /* ---------- home: full-screen portfolio (jealous layout) ---------- */
-#home{position:fixed;inset:0;height:calc(var(--vh)*100);overflow:hidden;touch-action:none}
-.reel{position:fixed;inset:0;z-index:1;overflow:hidden;background:#000;perspective:2200px;perspective-origin:50% 50%;transition:opacity 1.6s var(--ease)}
+#home{position:relative;height:calc(var(--vh)*100);overflow:hidden;touch-action:pan-y}
+.reel{position:absolute;inset:0;z-index:1;overflow:hidden;background:#000;perspective:2200px;perspective-origin:50% 50%;transition:opacity 1.6s var(--ease)}
 body.loading .reel{opacity:0}
 .cube3d{position:absolute;inset:0;transform-style:preserve-3d;-webkit-transform-style:preserve-3d}
 .slide{position:absolute;inset:0;overflow:hidden;background:#000;visibility:hidden;pointer-events:none;backface-visibility:hidden;-webkit-backface-visibility:hidden}
@@ -280,12 +282,12 @@ body.loading .reel{opacity:0}
   .lvid,.lover{left:var(--xm);top:var(--ym);width:var(--wm);height:var(--hm)}
   .lvid.dsk{display:none}
 }
-.reel-hit{position:fixed;inset:0;z-index:20;display:block}
-#letters{position:fixed;inset:0;width:100%;height:100%;z-index:28;pointer-events:none;mix-blend-mode:difference} /* white letters invert whatever is under them */
+.reel-hit{position:absolute;inset:0;z-index:20;display:block}
+#letters{position:absolute;inset:0;width:100%;height:100%;z-index:28;pointer-events:none;mix-blend-mode:difference} /* white letters invert whatever is under them */
 #home.dragging{cursor:grabbing}
 
 /* caption, bottom left */
-.cap{position:fixed;z-index:30;left:var(--m);bottom:var(--m);max-width:calc(100% - var(--m)*2 - 210px);mix-blend-mode:difference;color:#fff;line-height:1.05;transition:opacity 1.6s var(--ease)}
+.cap{position:absolute;z-index:30;left:var(--m);bottom:var(--m);max-width:calc(100% - var(--m)*2 - 210px);mix-blend-mode:difference;color:#fff;line-height:1.05;transition:opacity 1.6s var(--ease)}
 .cap-t{display:block;font-weight:200;font-size:clamp(34px,4.6vw,78px);letter-spacing:-.02em;line-height:1}
 .cap-s{display:block;font-size:var(--f1);margin-top:.55em;color:#cfcfcf}
 .cap-s a{color:#fff}
@@ -297,12 +299,11 @@ body.loading .cap{opacity:0}
 .cap.out .cap-swap{transform:translateY(40%);opacity:0}
 
 /* previous / next, vertical on the edges */
-.navside{position:fixed;top:50%;z-index:40;writing-mode:vertical-rl;mix-blend-mode:difference;color:#fff;padding:12px 0;font-size:var(--f1);line-height:1}
+.navside{position:absolute;top:50%;z-index:40;writing-mode:vertical-rl;mix-blend-mode:difference;color:#fff;padding:12px 0;font-size:var(--f1);line-height:1}
 .navside.prev{left:calc(var(--m) - 4px);transform:translateY(-50%) rotate(180deg)}
 .navside.next{right:calc(var(--m) - 4px);transform:translateY(-50%)}
 .navside[hidden]{display:none}
 body.loading .navside{opacity:0}
-body[data-view="home"] .hdr{mix-blend-mode:difference}
 
 /* client intros: each site's own loading screen, looping into its landing */
 .intro{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden;container-type:inline-size}
@@ -384,6 +385,7 @@ body.loading .badge{opacity:0}
 
 
 /* services: full-screen slideshow */
+.svcshow{position:relative;height:calc(var(--vh)*100);overflow:hidden;background:#000}
 .ss-slide{position:absolute;inset:0;display:grid;place-items:center;opacity:0;visibility:hidden;transition:opacity .9s var(--ease),visibility .9s}
 .ss-slide.on{opacity:1;visibility:visible}
 .ss-bg{position:absolute;inset:0;overflow:hidden}
@@ -426,7 +428,7 @@ body.loading .badge{opacity:0}
 .lede .lede-btn{position:fixed;z-index:30;right:var(--m);bottom:var(--m);margin:0;transition:opacity 1.6s var(--ease),color .45s var(--ease),transform .4s var(--ease)}
 body.loading .lede h1{opacity:0}
 body.loading .lede-btn{opacity:0}
-body:not([data-view="home"]) .lede{display:none}
+body:not([data-view="home"]) .lede-btn{opacity:0;pointer-events:none}
 @media (max-width:768px){.lede .lede-btn{padding:.8em 1.5em}.cap{max-width:calc(100% - var(--m)*2)}.cap{bottom:calc(var(--m)*2 + 3.2em)}}
 
  /* ---------- inner pages ---------- */
@@ -501,7 +503,9 @@ body.menu-open .menu{opacity:1;visibility:visible}
 @keyframes blink{50%{opacity:0}}
 .tile.snap{transition:none}
 .blackout.off{opacity:0;visibility:hidden;pointer-events:none}
-#saver{opacity:0;visibility:hidden}
+#saver{opacity:0;visibility:hidden;background:#fff;color:#000}
+#saver .caret{background:#000}
+#saver .typer .dot{color:#000}
 #saver.on{opacity:1;visibility:visible}
 .alogo{font-weight:200;font-size:clamp(40px,7.2vw,132px);line-height:1;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;padding:.12em .05em;text-transform:lowercase}
 .alogo span{display:inline-block;animation:drop 3.6s cubic-bezier(.34,1.56,.64,1) infinite both}
@@ -563,7 +567,7 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
 
 <main>
   <!-- HOME -->
-  <section class="view on" id="home" data-view="home">
+  <section class="view flow" id="home" data-view="home">
     <div class="reel" id="reel"></div>
     <a class="reel-hit" id="winLink" href="#" target="_blank" rel="noopener"></a>
     <canvas id="letters" aria-hidden="true"></canvas>
@@ -583,7 +587,7 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
   </section>
 
   <!-- ABOUT -->
-  <section class="view page" id="about" data-view="about">
+  <section class="view flow page" id="about" data-view="about">
     <h1 class="ptitle"><span class="dot">•</span>about</h1>
     <div class="big">
       <p>riss creative co. <span class="g">is a los angeles digital studio</span> founded by carissa&nbsp;lay.</p>
@@ -598,7 +602,7 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
   </section>
 
   <!-- SERVICES -->
-  <section class="view svcshow" id="services" data-view="services" aria-roledescription="carousel" aria-label="Services">
+  <section class="view flow svcshow" id="services" data-view="services" aria-roledescription="carousel" aria-label="Services">
     <h1 class="sr">Services</h1>
     <div class="ss-track">
       <article class="ss-slide on" data-i="0">
@@ -644,7 +648,7 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
   </section>
 
   <!-- CONTACT -->
-  <section class="view page" id="contact" data-view="contact" style="position:relative">
+  <section class="view flow page" id="contact" data-view="contact" style="position:relative">
     <h1 class="ptitle"><span class="dot">•</span>contact</h1>
     <div class="contact-lines">
       <p><span class="grey">email me</span><a class="u" href="mailto:contact@risscreativeco.com?subject=New%20project">contact@risscreativeco.com</a></p>
@@ -939,35 +943,51 @@ function where(){
   }
   return [location.pathname.replace(/^\/+|\/+$|\.html$/g,'')];
 }
+const FLOW=['home','about','services','contact'];
+function setTitleFor(view){ document.title=TITLES[view]||TITLES.home; baseTitle=document.title;
+  const c=document.querySelector('link[rel=canonical]'); if(c) c.href='https://risscreativeco.com/'+(view==='home'?'':view);
+  const here=view==='home'?'/':'/'+view; ms.querySelectorAll('a').forEach(a=>a.classList.toggle('cur',a.getAttribute('href')===here)); }
+function enterView(view){ // the section you're looking at: header style, title, and whether the landing animates
+  if(view===currentView) return; const was=currentView; currentView=view; body.dataset.view=view; setTitleFor(view);
+  if(view==='services'&&window.__ssStart) window.__ssStart();
+  if(view==='home'){ playSlide(cur); startPhysics(); if(!turning) startVid(cur); }
+  else if(was==='home'){ slides.forEach(s=>{const v=s.querySelector('video');v&&v.pause()}); stopPhysics(); }
+}
+function goTo(view,smooth){ const el=document.getElementById(view); if(!el) return;
+  const y=view==='home'?0:el.getBoundingClientRect().top+scrollY; scrollTo({top:y,behavior:smooth&&!RM?'smooth':'auto'}); }
+let scrollTarget=null;
 function route(){
   const [v,slug]=where();
-  let view=['work','about','services','contact'].includes(v)?v:'home';
-  let proj=null;
-  if(v==='work'&&slug){ proj=PROJECTS.find(p=>p.slug===slug); if(proj) view='project'; }
-  const apply=()=>{
-    document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on', s.dataset.view===view || (view==='project'&&s.id==='work')));
-    body.dataset.view=view; currentView=view;
-    const here=view==='home'?'/':'/'+view; ms.querySelectorAll('a').forEach(a=>a.classList.toggle('cur',a.getAttribute('href')===here));
+  if(v==='work'){ // the old work screens still open on their own
+    let view='work', proj=null; if(slug){ proj=PROJECTS.find(p=>p.slug===slug); if(proj) view='project'; }
+    body.classList.add('solo'); document.querySelectorAll('.view:not(.flow)').forEach(s=>s.classList.toggle('on', s.dataset.view===view || (view==='project'&&s.id==='work')));
+    stopPhysics(); currentView=view; body.dataset.view=view;
     if(view==='project'){
       $('#pvid').innerHTML=`<video muted loop playsinline autoplay poster="${proj.poster}" src="${proj.video}"></video>`;
       $('#pmeta').innerHTML=`<h1>${proj.title} — ${proj.sub}</h1><p>${proj.blurb}</p><p><a class="u keep-case" href="${proj.url}" target="_blank" rel="noopener">visit ${proj.url.replace(/^https?:\/\//,'')} ↗︎</a></p>`;
       document.title=proj.title+' — Riss Creative Co.';
-    } else { $('#pvid').innerHTML=''; document.title=TITLES[view]; }
-    if(view==='home'||PAGES.includes(view)){ const c=document.querySelector('link[rel=canonical]'); if(c) c.href='https://risscreativeco.com/'+(view==='home'?'':view); }
-    if(view==='services'&&window.__ssStart) setTimeout(window.__ssStart,50);
-    if(view==='home'){ playSlide(cur); startPhysics(); if(!turning) startVid(cur); } else { slides.forEach(s=>{const v=s.querySelector('video');v&&v.pause()}); stopPhysics(); }
-    if(view!=='project') scrollTo(0,0);
-    baseTitle=document.title;
-  };
-  if(first){ first=false; apply(); return; }
-  body.classList.add('leaving'); setTimeout(()=>{ apply(); body.classList.remove('leaving'); },450);
+    } else { $('#pvid').innerHTML=''; document.title=TITLES.work; scrollTo(0,0); }
+    return;
+  }
+  const wasSolo=body.classList.contains('solo'); body.classList.remove('solo'); document.querySelectorAll('.view:not(.flow)').forEach(s=>s.classList.remove('on')); $('#pvid').innerHTML='';
+  const view=FLOW.includes(v)?v:'home';
+  if(first){ first=false; currentView=null; enterView(view); scrollTarget=view; goTo(view,false); return; }
+  if(wasSolo) currentView=null;
+  goTo(view,true);
 }
+// as you scroll, whichever section fills the middle of the screen is "current"; the address bar follows along
+let scrollTick=0;
+function onScroll(){ scrollTick=0; if(body.classList.contains('solo')) return;
+  const mid=innerHeight*.5; let view='home';
+  for(const id of FLOW){ const r=document.getElementById(id).getBoundingClientRect(); if(r.top<=mid&&r.bottom>mid){ view=id; break; } }
+  if(view!==currentView){ enterView(view); const path=view==='home'?'/':'/'+view; if(location.pathname!==path||location.hash) history.replaceState(null,'',path); } }
+addEventListener('scroll',()=>{ if(!scrollTick) scrollTick=requestAnimationFrame(onScroll); },{passive:true});
 addEventListener('hashchange',route);
 addEventListener('popstate',route);
 document.addEventListener('click',e=>{ // move between pages without a reload
   const a=e.target.closest('a[href^="/"]'); if(!a||a.target==='_blank'||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey) return;
   const path=a.getAttribute('href'); if(path!=='/'&&!PAGES.includes(path.slice(1))) return;
-  e.preventDefault(); if(path!==location.pathname||location.hash){ history.pushState(null,'',path); route(); }
+  e.preventDefault(); if(path!==location.pathname||location.hash||body.classList.contains('solo')) history.pushState(null,'',path); route();
 });
 
 /* ---------- the name, as loose letters (Matter.js) ----------
@@ -1041,7 +1061,8 @@ function frame(t){
   if(!running) return;
   const now=performance.now(), dt=Math.min(32,t-(lastT||t)); lastT=t;
   const px=pointerBody.position.x, py=pointerBody.position.y;
-  Body.setPosition(pointerBody,{x:ptr.x,y:ptr.y}); Body.setVelocity(pointerBody,{x:ptr.x-px,y:ptr.y-py});
+  const hy=ptr.y<-900?ptr.y:ptr.y-cv.getBoundingClientRect().top; // finger/cursor in the canvas's own space
+  Body.setPosition(pointerBody,{x:ptr.x,y:hy}); Body.setVelocity(pointerBody,{x:ptr.x-px,y:hy-py});
   if(mode==='word'){
     if(now>wordUntil){ grav={x:0,y:0}; pile(); }
     else { const k=.02, damp=.84; // spring each letter to its place in the word
@@ -1111,9 +1132,8 @@ function wake(){ if(saver.classList.contains('on')){ saver.classList.remove('on'
   addEventListener('keydown',e=>{ if(currentView!=='services') return; if(e.key==='ArrowRight') show(i+1,true); if(e.key==='ArrowLeft') show(i-1,true); });
   let sx=null, sy=null; root.addEventListener('touchstart',e=>{ sx=e.touches[0].clientX; sy=e.touches[0].clientY },{passive:true});
   root.addEventListener('touchend',e=>{ if(sx==null) return; const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
-    if(Math.max(Math.abs(dx),Math.abs(dy))>50) show(i+((Math.abs(dx)>Math.abs(dy)?dx:dy)<0?1:-1),true); sx=sy=null; });
-  // mouse wheel / trackpad: one slide per scroll gesture
-  let lock=0; root.addEventListener('wheel',e=>{ e.preventDefault(); const d=Math.abs(e.deltaY)>Math.abs(e.deltaX)?e.deltaY:e.deltaX; if(Math.abs(d)<8||performance.now()<lock) return; lock=performance.now()+950; show(i+(d>0?1:-1),true); },{passive:false});
+    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.3) show(i+(dx<0?1:-1),true); sx=sy=null; });
+  // (no wheel hijack: the page scrolls straight through)
     window.__ssStart=()=>show(0);
 })();
 
@@ -1142,6 +1162,7 @@ const m0=slides[0]&&slides[0].querySelector('.media');
 const vidOk=new Promise(r=>{ if(!m0) return r(); if(m0.tagName==='IMG'){ if(m0.complete) return r(); m0.addEventListener('load',r,{once:true}); m0.addEventListener('error',r,{once:true}); } else { if(m0.readyState>=3) return r(); m0.addEventListener('canplay',r,{once:true}); } setTimeout(r,4000); });
 Promise.all([minShow,Promise.race([Promise.all([fontsOk,vidOk]),cap(1200)])]).then(()=>{
   $('#loader').classList.add('off'); body.classList.remove('loading');
+  if(scrollTarget&&scrollTarget!=='home') goTo(scrollTarget,false);
   if(currentView==='home') startPhysics();
   runIntro(cur);
   wake();
