@@ -218,6 +218,40 @@ body.menu-open .hdr-logo{opacity:0}
 body[data-view="project"] .hdr{opacity:0;pointer-events:none;visibility:hidden}
 .hdr-menu{line-height:1}
 
+/* ---------- glow buttons (menu + start a project) ----------
+   frosted, clipped bottom-right corner; on hover it lights up and a soft
+   colour bloom spins round the edge (after trinity®). */
+@property --ga{syntax:'<angle>';inherits:false;initial-value:0deg}
+.tbtn{--fg:#fff;--bg:#000;--cut:9px;position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:.4em;
+  padding:.78em 1.35em;border:0;border-radius:0;background:none;color:var(--fg);font:inherit;font-weight:300;line-height:1;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;transition:color .45s var(--ease),transform .45s var(--ease)}
+.tbtn::after{content:"";position:absolute;inset:0;z-index:-1;border-radius:10px;
+  background:linear-gradient(to bottom right,transparent calc(50% - .6px),var(--fg) calc(50% - .6px),var(--fg) calc(50% + .6px),transparent calc(50% + .6px)) 100% 100%/var(--cut) var(--cut) no-repeat,
+             color-mix(in srgb,var(--bg) 55%,transparent);
+  box-shadow:inset 0 0 0 1.2px var(--fg);
+  clip-path:polygon(0 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:background-color .45s var(--ease)}
+.tbtn::before{content:"";position:absolute;inset:-2px;z-index:-2;border-radius:14px;
+  background:conic-gradient(from var(--ga),#d7f766,#6f7cff,#b35cff,#ff4d6a,#ffb347,#d7f766);
+  filter:blur(13px);opacity:0;transition:opacity .55s var(--ease);animation:tglow 2.6s linear infinite;animation-play-state:paused}
+@keyframes tglow{to{--ga:360deg}}
+.tbtn:hover,.tbtn:focus-visible,.tbtn:active{color:var(--bg)}
+.tbtn:hover::after,.tbtn:focus-visible::after,.tbtn:active::after{background-color:color-mix(in srgb,var(--fg) 91%,var(--bg))}
+.tbtn:hover::before,.tbtn:focus-visible::before,.tbtn:active::before{opacity:.95;animation-play-state:running}
+.tbtn:focus-visible{outline:0}
+/* phones can't hover: let the bloom breathe softly so the buttons still glow */
+@media (hover:none){.tbtn::before{animation:tglow 2.6s linear infinite,tbreathe 3.2s ease-in-out infinite;animation-play-state:running}}
+@keyframes tbreathe{0%,100%{opacity:.18}50%{opacity:.5}}
+@media (prefers-reduced-motion:reduce){.tbtn::before{animation:none}}
+/* the menu button sits in the header: no blend mode, so the glow keeps its colour */
+body[data-view="home"] .hdr:has(.tbtn){mix-blend-mode:normal}
+body.menu-open .hdr .tbtn{--fg:#000;--bg:#fff}
+.hdr .tbtn{font-size:clamp(15px,1.05vw,18px)}
+/* start a project: same button, a touch bigger, replaces the white pill */
+.ss-pill.tbtn{background:none;color:var(--fg);border-radius:0;margin:0;padding:.95em 1.7em}
+.ss-pill.tbtn:hover,.ss-pill.tbtn:focus-visible,.ss-pill.tbtn:active{color:var(--bg)}
+.ss-pill.tbtn:hover{background:none;transform:none}
+
 /* ---------- views ---------- */
 .view{display:none}
 .view.on{display:block}
@@ -255,6 +289,9 @@ body.loading .reel{opacity:0}
 .cap-t{display:block;font-weight:200;font-size:clamp(34px,4.6vw,78px);letter-spacing:-.02em;line-height:1}
 .cap-s{display:block;font-size:var(--f1);margin-top:.55em;color:#cfcfcf}
 .cap-s a{color:#fff}
+.cap-t,#winUrl{background:linear-gradient(#fff,#fff) 0 0/0% 100% no-repeat;transition:background-size .55s var(--ease),color .3s var(--ease)}
+.cap-t:hover,.cap-t:focus-visible,#winUrl:hover,#winUrl:focus-visible{background-size:100% 100%;color:#000} /* under the caption's difference blend: the block inverts what's behind, the letters go see-through, like the title */
+#winUrl:hover::after,#winUrl:focus-visible::after{transform:scaleX(0)}
 body.loading .cap{opacity:0}
 .cap-swap{display:inline-block;transition:transform .6s var(--ease),opacity .4s}
 .cap.out .cap-swap{transform:translateY(40%);opacity:0}
@@ -386,7 +423,7 @@ body.loading .badge{opacity:0}
 @media (prefers-reduced-motion:reduce){.roll{animation:none}}
 
 .lede h1{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap} /* kept for search engines; the screen stays clean like jealous */
-.lede .lede-btn{position:fixed;z-index:30;right:var(--m);bottom:var(--m);margin:0;transition:opacity 1.6s var(--ease),background .4s var(--ease),transform .4s var(--ease)}
+.lede .lede-btn{position:fixed;z-index:30;right:var(--m);bottom:var(--m);margin:0;transition:opacity 1.6s var(--ease),color .45s var(--ease),transform .4s var(--ease)}
 body.loading .lede h1{opacity:0}
 body.loading .lede-btn{opacity:0}
 body:not([data-view="home"]) .lede{display:none}
@@ -508,12 +545,12 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
 </defs></svg>
 <div class="blackout" id="loader" aria-hidden="true"><div class="cube" data-cube></div></div>
 <div class="blackout" id="saver" aria-hidden="true"><div class="typer"><span id="typed"></span><span class="caret"></span></div></div>
-<div class="lede-wrap"><div class="lede"><h1><span class="sr">Riss Creative Co. — </span>website design &amp; ai systems, los angeles.</h1><a class="ss-pill lede-btn" href="/contact">start a project</a></div></div>
+<div class="lede-wrap"><div class="lede"><h1><span class="sr">Riss Creative Co. — </span>website design &amp; ai systems, los angeles.</h1><a class="ss-pill lede-btn tbtn" href="/contact">start a project</a></div></div>
 <div id="cursor" aria-hidden="true"><span id="cursorLabel"></span></div>
 
 <header class="hdr">
   <a href="/" class="hdr-logo" aria-label="Riss Creative Co. home">rcc.</a>
-  <button class="hdr-menu u" id="menuBtn" aria-expanded="false" aria-controls="menu">menu</button>
+  <button class="hdr-menu tbtn" id="menuBtn" aria-expanded="false" aria-controls="menu">menu</button>
 </header>
 
 <nav class="menu" id="menu" aria-label="Main">
@@ -642,9 +679,9 @@ const PROJECTS = [
     ratio: "1356/720", ratioMobile: "390/844", // shape of the reel / phone screenshot
     thumb: "media/campthehills-thumb.jpg",     // work page
     intro: "cth",                              // replays the site's own loading screen, then drops into its landing (see INTROS)
-    // 10s scroll-through of the live site, plays full-frame after the loader (landscape screens; phones keep the screenshot)
+    // 12s scroll-through of the live site, plays full-frame after the loader (landscape screens; phones keep the screenshot)
     live: { src: "media/campthehills-reel.mp4", box: [0, 0, 100, 100], desktopOnly: true },
-    hold: 9200,                                // landing stays up for the length of the reel
+    hold: 11400,                               // landing stays up for the length of the reel
     blurb: "artist website for a los angeles musician: music, video, shows and links in one place."
   },
   {
@@ -654,12 +691,12 @@ const PROJECTS = [
     url: "https://crystalfambrini.com",
     image: "media/crystalfambrini-reel-poster.jpg", // first frame of the reel (desktop)
     imageMobile: "media/crystalfambrini-m.jpg",
-    ratio: "1462/720", ratioMobile: "390/844",
+    ratio: "1356/720", ratioMobile: "390/844",
     thumb: "media/crystalfambrini-thumb.jpg",
     intro: "cf",                               // replays her site's loader, then drops into the reel
-    // 10s scroll-through of the live site, starting on her landing (landscape screens; phones keep the screenshot)
+    // 12s scroll-through of the live site, starting on her landing (landscape screens; phones keep the screenshot)
     live: { src: "media/crystalfambrini-reel.mp4", box: [0, 0, 100, 100], desktopOnly: true },
-    hold: 9200,
+    hold: 11400,
     blurb: "personal brand site for a los angeles realtor, tv host and executive producer: listings, interviews and her showreel."
   }
 ];
@@ -745,11 +782,11 @@ if(PROJECTS.length>1){ $('#prevBtn').hidden=false; $('#nextBtn').hidden=false; }
 $('#prevBtn').onclick=()=>flipTo(cur-1,-1); $('#nextBtn').onclick=()=>flipTo(cur+1,1);
 function setCaption(i=cur){ const p=PROJECTS[i];
   ['#winLink','#winTitle','#winUrl'].forEach(s=>$(s).href=p.url);
-  $('#winUrl').textContent='visit '+p.url.replace(/^https?:\/\/(www\.)?/,'')+' ↗'; $('#winTitle').textContent=p.title; $('#winSub').textContent=p.sub;
+  $('#winUrl').textContent='visit '+p.url.replace(/^https?:\/\/(www\.)?/,'')+' ↗︎'; $('#winTitle').textContent=p.title; $('#winSub').textContent=p.sub;
   $('#winLink').setAttribute('aria-label','Visit '+p.title+' (opens in a new tab)'); }
 function swapCaption(i){ const c=$('#cap'); if(RM){ setCaption(i); return; } c.classList.add('out'); setTimeout(()=>{ setCaption(i); c.classList.remove('out'); },450); }
 setCaption();
-$('#winLink').addEventListener('mouseenter',()=>{ if(cursorLabel) cursorLabel.textContent='visit site ↗'; });
+$('#winLink').addEventListener('mouseenter',()=>{ if(cursorLabel) cursorLabel.textContent='visit site ↗︎'; });
 $('#winLink').addEventListener('mouseleave',()=>{ if(cursorLabel) cursorLabel.textContent=''; });
 
 /* ---------- client intros ----------
@@ -870,7 +907,7 @@ function runIntro(i){ runFace(i); } // kept for the loader hook below
 const wg=$('#wgrid'); if(PROJECTS.length===1) wg.classList.add('single');
 PROJECTS.forEach(p=>{
   const a=document.createElement('a'); a.className='wcard'; a.href=p.url; a.target='_blank'; a.rel='noopener';
-  a.innerHTML=`<div class="thumb">${p.video?`<video muted loop playsinline preload="metadata" poster="${p.poster||''}" src="${p.video}"></video>`:`<img src="${p.thumb||p.image}" alt="${p.title} website" loading="lazy">`}</div><h2>${p.title} ↗</h2><p>${p.sub}</p>`;
+  a.innerHTML=`<div class="thumb">${p.video?`<video muted loop playsinline preload="metadata" poster="${p.poster||''}" src="${p.video}"></video>`:`<img src="${p.thumb||p.image}" alt="${p.title} website" loading="lazy">`}</div><h2>${p.title} ↗︎</h2><p>${p.sub}</p>`;
   const v=a.querySelector('video');
   if(v){ if(FINE){ a.onmouseenter=()=>v.play().catch(()=>{}); a.onmouseleave=()=>v.pause(); } else { v.autoplay=true; } }
   wg.appendChild(a);
@@ -913,7 +950,7 @@ function route(){
     const here=view==='home'?'/':'/'+view; ms.querySelectorAll('a').forEach(a=>a.classList.toggle('cur',a.getAttribute('href')===here));
     if(view==='project'){
       $('#pvid').innerHTML=`<video muted loop playsinline autoplay poster="${proj.poster}" src="${proj.video}"></video>`;
-      $('#pmeta').innerHTML=`<h1>${proj.title} — ${proj.sub}</h1><p>${proj.blurb}</p><p><a class="u keep-case" href="${proj.url}" target="_blank" rel="noopener">visit ${proj.url.replace(/^https?:\/\//,'')} ↗</a></p>`;
+      $('#pmeta').innerHTML=`<h1>${proj.title} — ${proj.sub}</h1><p>${proj.blurb}</p><p><a class="u keep-case" href="${proj.url}" target="_blank" rel="noopener">visit ${proj.url.replace(/^https?:\/\//,'')} ↗︎</a></p>`;
       document.title=proj.title+' — Riss Creative Co.';
     } else { $('#pvid').innerHTML=''; document.title=TITLES[view]; }
     if(view==='home'||PAGES.includes(view)){ const c=document.querySelector('link[rel=canonical]'); if(c) c.href='https://risscreativeco.com/'+(view==='home'?'':view); }
@@ -943,7 +980,7 @@ const {Engine,Bodies,Body,Composite,Events}=window.Matter||{}; // page still wor
 const cv=$('#letters'), ctx=cv.getContext('2d');
 const LINES=['rïss','crëative','cö.'];
 let engine, glyphs=[], W=0, H=0, DPR=1, fontPx=0, raf=0, running=false, built=false, pointerBody, lastT=0;
-let mode='word', grav={x:0,y:1}, wordUntil=0;
+let mode='word', grav={x:0,y:1}, wordUntil=0, nextTry=0, tryStart=0, tryEnd=0;
 const DIRS=[{x:0,y:1},{x:-1,y:0},{x:0,y:-1},{x:1,y:0}];
 const font=()=>`800 ${fontPx}px Syne`;
 
@@ -987,6 +1024,7 @@ function pile(){ // swing gravity to a new edge and give the heap a shove
   if(!built||RM) return;
   let nd; do{ nd=DIRS[Math.floor(Math.random()*DIRS.length)]; }while(nd.x===grav.x&&nd.y===grav.y);
   grav=nd; mode='pile'; engine.gravity.x=grav.x; engine.gravity.y=grav.y;
+  nextTry=performance.now()+2400+Math.random()*1800; // lie in the heap a moment, then try to spell it again
   glyphs.forEach(b=>{ Body.setVelocity(b,{x:b.velocity.x+grav.x*6+(Math.random()-.5)*8,y:b.velocity.y+grav.y*6+(Math.random()-.5)*8}); Body.setAngularVelocity(b,(Math.random()-.5)*.25); });
 }
 function jolt(){ if(!built) return; glyphs.forEach(b=>Body.setVelocity(b,{x:(Math.random()-.5)*16,y:(Math.random()-.5)*16})); }
@@ -1009,6 +1047,20 @@ function frame(t){
     else { const k=.02, damp=.84; // spring each letter to its place in the word
       for(const b of glyphs){
         Body.setVelocity(b,{x:b.velocity.x*damp+(b.tx-b.position.x)*k, y:b.velocity.y*damp+(b.ty-b.position.y)*k});
+        let a=b.angle%(Math.PI*2); if(a>Math.PI) a-=Math.PI*2; if(a<-Math.PI) a+=Math.PI*2;
+        Body.setAngularVelocity(b,b.angularVelocity*damp-a*k*1.4); } }
+  } else if(mode==='pile'){
+    if(now>nextTry){ mode='try'; tryStart=now;
+      // most attempts make it and hold the word for a beat; some give up halfway and fall back in
+      tryEnd=now+(Math.random()<.25?1000+Math.random()*500:3600+Math.random()*1000); }
+  } else if(mode==='try'){
+    if(now>tryEnd){ pile(); }
+    else { const r=Math.min(1,(now-tryStart)/1300), e=r*r*(3-2*r); // ease in: they start weak and pull harder
+      engine.gravity.x=grav.x*(1-e); engine.gravity.y=grav.y*(1-e); // the pile's gravity lets go as they pull together
+      const k=.006+.016*e, damp=.84;
+      for(const b of glyphs){
+        const sh=(1-e)*1.2; // a little struggle on the way up
+        Body.setVelocity(b,{x:b.velocity.x*damp+(b.tx-b.position.x)*k+(Math.random()-.5)*sh, y:b.velocity.y*damp+(b.ty-b.position.y)*k+(Math.random()-.5)*sh});
         let a=b.angle%(Math.PI*2); if(a>Math.PI) a-=Math.PI*2; if(a<-Math.PI) a+=Math.PI*2;
         Body.setAngularVelocity(b,b.angularVelocity*damp-a*k*1.4); } }
   }
