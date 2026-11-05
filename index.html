@@ -422,8 +422,8 @@ body[data-view="about"]:not(.menu-open) .hdr .tbtn{--fg:#000;--bg:#fff;--rest:rg
 .hl:hover,.hl:focus-visible{background-size:100% 100%;color:var(--hl-paper)}
 a.hl.u::after{display:none}
 /* services: full-screen slideshow */
-.svcshow{position:relative;height:calc(var(--vh)*100*var(--n,5));background:#000} /* one screen of scroll per service */
-.ss-pin{position:sticky;top:0;height:calc(var(--vh)*100);overflow:hidden;display:flex;flex-direction:column;background:#fff;color:#000}
+.svcshow{position:relative;height:calc(var(--vh)*100);background:#000} /* one screen; services rotate on their own */
+.ss-pin{position:relative;height:calc(var(--vh)*100);overflow:hidden;display:flex;flex-direction:column;background:#fff;color:#000}
 .ss-pin #readText{flex:none;padding:calc(var(--m)*4.2) var(--m) 0}
 .ss-track{position:relative;flex:1;min-height:0}
 .anchor{height:0}
@@ -1193,18 +1193,20 @@ function wake(){ if(saver.classList.contains('on')){ saver.classList.remove('on'
   function seat(){ const c=slides[Math.max(0,i)].querySelector('.ss-copy'); if(c) ui.style.top=(c.offsetTop+c.offsetHeight+30)+'px'; } // dots sit right under the button
   function show(k){ if(k===i) return; i=k; slides.forEach((s,j)=>s.classList.toggle('on',j===i)); btns.forEach((b,j)=>{ b.classList.toggle('on',j===i); b.setAttribute('aria-selected',j===i); }); typeQuery(slides[i]); seat(); }
   addEventListener('resize',seat); if(document.fonts) document.fonts.ready.then(seat);
-  const span=()=>root.offsetHeight-innerHeight;
-  function go(k){ k=Math.max(0,Math.min(N-1,k)); scrollTo({top:root.getBoundingClientRect().top+scrollY+span()*(k+.5)/N,behavior:RM?'auto':'smooth'}); }
+  // no more scroll-jacking: the frame is one screen; services change on their own while it's on screen
   const parts=slides.map(sl=>[sl.querySelector('h2 .sw'),sl.querySelector('.ss-sub .sw')]);
-  const clamp=v=>Math.max(0,Math.min(1,v));
-  function sync(){ const p=-root.getBoundingClientRect().top/span(); show(Math.max(0,Math.min(N-1,Math.floor(p*N))));
-    // inside each slide's stretch of scroll: the heading's highlight grows first, then the line under it
-    parts.forEach(([h,sub],k)=>{ const t=RM?1:p*N-k; h&&h.style.setProperty('--rv',clamp(t/.4)*100+'%'); sub&&sub.style.setProperty('--rv',clamp((t-.3)/.4)*100+'%'); }); }
-  // when nobody's scrolling, the current service finishes revealing on its own
-  let idle=0; function settle(){ const [h,sub]=parts[Math.max(0,i)]; h&&h.style.setProperty('--rv','100%'); setTimeout(()=>sub&&sub.style.setProperty('--rv','100%'),350); }
-  addEventListener('scroll',()=>{ sync(); clearTimeout(idle); idle=setTimeout(settle,700); },{passive:true}); addEventListener('resize',sync); sync(); idle=setTimeout(settle,1800);
+  const HOLD=4200; let t=0, hl=[];
+  function reveal(k){ hl.forEach(clearTimeout); hl=[];
+    parts.forEach(([h,sub],j)=>{ if(j!==k){ h&&h.style.setProperty('--rv','0%'); sub&&sub.style.setProperty('--rv','0%'); } });
+    const [h,sub]=parts[k]; if(RM){ h&&h.style.setProperty('--rv','100%'); sub&&sub.style.setProperty('--rv','100%'); return; }
+    hl.push(setTimeout(()=>h&&h.style.setProperty('--rv','100%'),250), setTimeout(()=>sub&&sub.style.setProperty('--rv','100%'),700)); }
+  const inView=()=>{ const r=root.getBoundingClientRect(); return r.top<innerHeight*.6&&r.bottom>innerHeight*.4&&!document.hidden; };
+  function go(k){ show((k+N)%N); reveal(i); clearTimeout(t); t=setTimeout(loop,HOLD); }
+  function loop(){ if(inView()) go(i+1); else t=setTimeout(loop,800); }
+  go(0);
+  let was=false; addEventListener('scroll',()=>{ const v=inView(); if(v&&!was) reveal(i); was=v; },{passive:true});
   addEventListener('keydown',e=>{ if(currentView!=='services') return; if(e.key==='ArrowRight') go(i+1); if(e.key==='ArrowLeft') go(i-1); });
-  window.__ssStart=sync;
+  window.__ssStart=()=>{};
 })();
 
 /* ---------- tab title when away ---------- */
