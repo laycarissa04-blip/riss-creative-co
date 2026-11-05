@@ -644,7 +644,7 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
     </div>
     <div class="ss-track">
       <article class="ss-slide on" data-i="0">
-        <div class="ss-bg bg-web"><img src="media/campthehills.jpg" alt=""></div>
+        <div class="ss-bg bg-web"></div>
         <div class="ss-copy"><h2><span class="sw">website design &amp; build</span></h2>
           <p class="ss-sub"><span class="sw">custom websites, designed and developed.</span></p>
           <a class="ss-pill tbtn" href="/contact">start a project</a></div>
@@ -716,13 +716,13 @@ const PROJECTS = [
     title: "campthehills",
     sub: "website design & build",
     url: "https://campthehills.net",
-    image: "media/campthehills-reel-poster.jpg", // first frame of the reel (desktop)
+    image: "media/campthehills-reel-hq.jpg", // first frame of the reel (desktop)
     imageMobile: "media/campthehills-m.jpg",   // phone screenshot, used on portrait screens
     ratio: "1356/720", ratioMobile: "390/844", // shape of the reel / phone screenshot
     thumb: "media/campthehills-thumb.jpg",     // work page
     intro: "cth",                              // replays the site's own loading screen, then drops into its landing (see INTROS)
     // 12s scroll-through of the live site, plays full-frame after the loader (landscape screens; phones keep the screenshot)
-    live: { src: "media/campthehills-reel.mp4", box: [0, 0, 100, 100], desktopOnly: true },
+    live: { src: "media/campthehills-reel-hq.mp4", box: [0, 0, 100, 100], desktopOnly: true },
     hold: 11400,                               // landing stays up for the length of the reel
     blurb: "artist website for a los angeles musician: music, video, shows and links in one place."
   },
@@ -731,13 +731,13 @@ const PROJECTS = [
     title: "crystal fambrini",
     sub: "website design & build",
     url: "https://crystalfambrini.com",
-    image: "media/crystalfambrini-reel-poster.jpg", // first frame of the reel (desktop)
+    image: "media/crystalfambrini-reel-hq.jpg", // first frame of the reel (desktop)
     imageMobile: "media/crystalfambrini-m.jpg",
     ratio: "1356/720", ratioMobile: "390/844",
     thumb: "media/crystalfambrini-thumb.jpg",
     intro: "cf",                               // replays her site's loader, then drops into the reel
     // 12s scroll-through of the live site, starting on her landing (landscape screens; phones keep the screenshot)
-    live: { src: "media/crystalfambrini-reel.mp4", box: [0, 0, 100, 100], desktopOnly: true },
+    live: { src: "media/crystalfambrini-reel-hq.mp4", box: [0, 0, 100, 100], desktopOnly: true },
     hold: 11400,
     blurb: "personal brand site for a los angeles realtor, tv host and executive producer: listings, interviews and her showreel."
   }
