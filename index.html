@@ -217,6 +217,10 @@ body:not([data-view="home"]):not(.menu-open) .hdr{padding-bottom:calc(var(--m)*.
 body.menu-open .hdr-logo{opacity:0}
 body[data-view="project"] .hdr{opacity:0;pointer-events:none;visibility:hidden}
 .hdr-menu{line-height:1}
+.hdr-r{display:flex;gap:10px;align-items:flex-start;pointer-events:none}
+.hdr-r>*{pointer-events:auto}
+.hdr-contact{transition:opacity .5s var(--ease),transform .5s var(--ease),visibility .5s,color .45s var(--ease)}
+body.at-bottom .hdr-contact,body.menu-open .hdr-contact{opacity:0;visibility:hidden;transform:translateY(-8px);pointer-events:none}
 
 /* ---------- glow buttons (menu + start a project) ----------
    frosted, clipped bottom-right corner; on hover it lights up and a soft
@@ -384,6 +388,21 @@ body.loading .badge{opacity:0}
 .cta-band:hover .band span{animation-duration:14s}
 
 
+/* sections alternate white / black as you scroll */
+#about{background:#fff;color:#000;--hl-ink:#000;--hl-paper:#fff}
+#about .caps li::before{color:#000}
+#about .ptitle .dot{background:#000}
+#contact{--hl-ink:#fff;--hl-paper:#000}
+body[data-view="about"]:not(.menu-open) .hdr{background:#fff;color:#000}
+body[data-view="about"]:not(.menu-open) .hdr .tbtn{--fg:#000;--bg:#fff;--rest:rgba(255,255,255,.7);--lit:#161616}
+/* services and contact read as one section: the slideshow runs straight into the contact details */
+.svcshow{height:calc(var(--vh)*78)!important}
+#contact.page{min-height:0;padding-top:calc(var(--m)*2.5);background:#000}
+#contact .ptitle{font-size:var(--f2);text-align:left;margin:0 0 calc(var(--m)*1.4)}
+/* text hover: a block sweeps in behind and the words knock out of it (same as the project caption) */
+.hl{background:linear-gradient(var(--hl-ink),var(--hl-ink)) 0 0/0% 100% no-repeat;transition:background-size .55s var(--ease),color .3s var(--ease)}
+.hl:hover,.hl:focus-visible{background-size:100% 100%;color:var(--hl-paper)}
+a.hl.u::after{display:none}
 /* services: full-screen slideshow */
 .svcshow{position:relative;height:calc(var(--vh)*100);overflow:hidden;background:#000}
 .ss-slide{position:absolute;inset:0;display:grid;place-items:center;opacity:0;visibility:hidden;transition:opacity .9s var(--ease),visibility .9s}
@@ -393,7 +412,7 @@ body.loading .badge{opacity:0}
 .ss-copy{position:relative;z-index:2;text-align:center;padding:0 var(--m);max-width:1200px;transform:translateY(24px);opacity:0;transition:transform 1.1s var(--ease) .15s,opacity .9s var(--ease) .15s}
 .ss-slide.on .ss-copy{transform:none;opacity:1}
 .ss-eye{color:var(--neon);font-size:var(--f1);margin-bottom:1.2em}
-.ss-copy h2{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(34px,5.2vw,88px);line-height:1;letter-spacing:-.01em;text-wrap:balance}
+.ss-copy h2{font-weight:300;text-transform:uppercase;font-size:clamp(30px,4.6vw,78px);line-height:1.12;letter-spacing:.32em;margin-right:-.32em;text-wrap:balance} /* same light, spaced-out caps as the loading screen */
 .ss-sub{color:#e6e6e6;font-size:clamp(17px,1.5vw,23px);line-height:1.45;max-width:30em;margin:1.4em auto 0}
 .ss-pill{display:inline-block;margin-top:2em;padding:.95em 2.1em;border-radius:999px;background:#fff;color:#000;font-weight:300;font-size:clamp(16px,1.2vw,19px);transition:background .4s var(--ease),transform .4s var(--ease)}
 .ss-pill:hover{background:var(--neon);transform:translateY(-2px)}
@@ -503,6 +522,8 @@ body.menu-open .menu{opacity:1;visibility:visible}
 @keyframes blink{50%{opacity:0}}
 .tile.snap{transition:none}
 .blackout.off{opacity:0;visibility:hidden;pointer-events:none}
+#loader{background:#fff;color:#000}
+#loader .tile.dot{color:#000}
 #saver{opacity:0;visibility:hidden;background:#fff;color:#000}
 #saver .caret{background:#000}
 #saver .typer .dot{color:#000}
@@ -554,7 +575,7 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
 
 <header class="hdr">
   <a href="/" class="hdr-logo" aria-label="Riss Creative Co. home">rcc.</a>
-  <button class="hdr-menu tbtn" id="menuBtn" aria-expanded="false" aria-controls="menu">menu</button>
+  <div class="hdr-r"><a class="hdr-contact tbtn" href="/contact">contact</a><button class="hdr-menu tbtn" id="menuBtn" aria-expanded="false" aria-controls="menu">menu</button></div>
 </header>
 
 <nav class="menu" id="menu" aria-label="Main">
@@ -582,7 +603,6 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
   <section class="view page" id="work" data-view="work">
     <h1 class="ptitle"><span class="dot">•</span>work</h1>
     <div class="wgrid" id="wgrid"></div>
-      <a class="cta-band" href="/contact"><div class="band"><span>start a project <i>//</i> start a project <i>//</i> start a project <i>//</i>&nbsp;</span><span>start a project <i>//</i> start a project <i>//</i> start a project <i>//</i>&nbsp;</span></div></a>
 
   </section>
 
@@ -591,13 +611,11 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
     <h1 class="ptitle"><span class="dot">•</span>about</h1>
     <div class="big">
       <p>riss creative co. <span class="g">is a los angeles digital studio</span> founded by carissa&nbsp;lay.</p>
-      <p><span class="g">websites,</span> brand identity <span class="g">and</span> ai systems, <span class="g">designed and built in&#8209;house.</span></p>
       <ul class="caps mono">
-        <li>web design &amp; development</li><li>brand identity</li><li>seo &amp; search infrastructure</li>
-        <li>rag pipelines &amp; vector databases</li><li>llm integration &amp; agentic workflows</li><li>serverless deployment</li>
+        <li><span class="hl">web design &amp; development</span></li><li><span class="hl">brand identity</span></li><li><span class="hl">seo &amp; search infrastructure</span></li>
+        <li><span class="hl">rag pipelines &amp; vector databases</span></li><li><span class="hl">llm integration &amp; agentic workflows</span></li><li><span class="hl">serverless deployment</span></li>
       </ul>
     </div>
-      <a class="cta-band" href="/contact"><div class="band"><span>start a project <i>//</i> start a project <i>//</i> start a project <i>//</i>&nbsp;</span><span>start a project <i>//</i> start a project <i>//</i> start a project <i>//</i>&nbsp;</span></div></a>
 
   </section>
 
@@ -651,8 +669,8 @@ body.loading .hdr,body.loading .slide-text,body.loading #cursor{opacity:0}
   <section class="view flow page" id="contact" data-view="contact" style="position:relative">
     <h1 class="ptitle"><span class="dot">•</span>contact</h1>
     <div class="contact-lines">
-      <p><span class="grey">email me</span><a class="u" href="mailto:contact@risscreativeco.com?subject=New%20project">contact@risscreativeco.com</a></p>
-      <p><span class="grey">prefer to talk?</span><a class="u" href="https://calendar.app.google/gG18xpzozbiToR9C6" target="_blank" rel="noopener">book a 30-minute call</a></p>
+      <p><span class="grey">email me</span><a class="u hl" href="mailto:contact@risscreativeco.com?subject=New%20project">contact@risscreativeco.com</a></p>
+      <p><span class="grey">prefer to talk?</span><a class="u hl" href="https://calendar.app.google/gG18xpzozbiToR9C6" target="_blank" rel="noopener">book a 30-minute call</a></p>
       <p><span class="grey">based in</span>los angeles, working with clients everywhere</p>
     </div>
   </section>
@@ -980,8 +998,11 @@ let scrollTick=0;
 function onScroll(){ scrollTick=0; if(body.classList.contains('solo')) return;
   const mid=innerHeight*.5; let view='home';
   for(const id of FLOW){ const r=document.getElementById(id).getBoundingClientRect(); if(r.top<=mid&&r.bottom>mid){ view=id; break; } }
+  if(scrollY+innerHeight>=document.documentElement.scrollHeight-60&&scrollY>0) view='contact'; // contact is short; the bottom of the page counts as it
   if(view!==currentView){ enterView(view); const path=view==='home'?'/':'/'+view; if(location.pathname!==path||location.hash) history.replaceState(null,'',path); } }
 addEventListener('scroll',()=>{ if(!scrollTick) scrollTick=requestAnimationFrame(onScroll); },{passive:true});
+function atBottom(){ body.classList.toggle('at-bottom', scrollY+innerHeight>=document.documentElement.scrollHeight-60); }
+addEventListener('scroll',atBottom,{passive:true}); addEventListener('resize',atBottom);
 addEventListener('hashchange',route);
 addEventListener('popstate',route);
 document.addEventListener('click',e=>{ // move between pages without a reload
